@@ -1,7 +1,8 @@
 #include <SDL.h>
 #include <stdio.h>
-#include <SDL_image.h>
+//#include <SDL_image.h>
 #include <SDL_mixer.h>
+#include "src/controls.h"
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
@@ -24,28 +25,6 @@ SDL_Texture* loadTexture(SDL_Renderer* renderer, const char* path) {
     SDL_FreeSurface(surface);
     return texture;
 }
-
-enum switchTex {
-    PLAY_DISPL,
-    PAUSE_DISPL,
-    IDLE
-};
-
-typedef struct unitControlRender {
-    struct SDL_Rect texPos;
-    struct SDL_Rect renderPos;
-} unitControlRender_t;
-
-
-typedef struct texControls {
-    struct SDL_Texture *atlas; 
-    unitControlRender_t play;
-    unitControlRender_t pause;
-    unitControlRender_t prev;
-    unitControlRender_t stop;
-    unitControlRender_t next;
-    enum switchTex ctrlAct;
-} texControls_t;
 
 
 void eventLoop(SDL_Window *window, int* quit, texControls_t* controls, Mix_Music* music){
