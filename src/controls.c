@@ -8,7 +8,7 @@ void renderButtons(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ct
         
         int buttonWidth = 150 / 3;
         int buttonHeight = 128 / 3;
-        int y = windowHeight - buttonHeight - 10;  // 10 pixels from the bottom
+        int y = windowHeight - buttonHeight - 9;  // 10 pixels from the bottom
 
         //SDL_Rect dstRect = {0, y, buttonWidth, buttonHeight};
 
