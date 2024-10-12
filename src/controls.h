@@ -26,4 +26,7 @@ typedef struct texControls {
     enum switchTex ctrlAct;
 } texControls_t;
 
+
+extern void renderButtons(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs);
+
 #endif
