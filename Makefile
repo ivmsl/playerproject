@@ -4,7 +4,7 @@ LDFLAGS =  -fsanitize=address
 
 # SDL2 flags and libraries
 SDL_CFLAGS = $(shell sdl2-config --cflags)
-SDL_LIBS = $(shell sdl2-config --libs) -lSDL2_image -lSDL2_mixer
+SDL_LIBS = $(shell sdl2-config --libs) -lSDL2_image -lSDL2_mixer -lSDL2_ttf
 
 # Include directories
 INCLUDES = -I/opt/homebrew/include/SDL2 -I./src

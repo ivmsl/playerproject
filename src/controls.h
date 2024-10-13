@@ -1,5 +1,6 @@
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_ttf.h>
 
 #ifndef controls_h_
 #define controls_h_
@@ -24,6 +25,8 @@ typedef struct texControls {
     unitControlRender_t stop;
     unitControlRender_t next;
     enum switchTex ctrlAct;
+    SDL_Texture *title; 
+
 } texControls_t;
 
 
