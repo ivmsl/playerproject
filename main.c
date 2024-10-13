@@ -134,10 +134,17 @@ void doRender(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs, T
             windowHeight / 2
         };
 
+        rect.x = rect.x - (rect.h / 2);
+        rect.h = 30;
+
         if (!ctrs->title) {
             char* title = Mix_GetMusicTitle(NULL);
             if (strcmp(title, "") > 0) {
                 ctrs->title = getTextureFromWords(renderer, font, title);
+                rect.w = (int) strlen(title) * 5;
+                rect.x = rect.x - (rect.h / 2);
+                rect.h = 30;
+                printf("title: %lu, rectw: %d rectx %d recth %d", strlen(title), rect.w, rect.x, rect.h);
             }
 
         }
