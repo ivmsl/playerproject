@@ -2,10 +2,10 @@ cmake_minimum_required(VERSION 3.10)
 project(SDLPlayerProject)
 
 # Find SDL2 and its components
-find_package(SDL2 REQUIRED)
-find_package(SDL2_mixer REQUIRED)
-find_package(SDL2_image REQUIRED)
-find_package(SDL2_ttf REQUIRED)
+find_package(SDL2 QUIET)
+find_package(SDL2_mixer QUIET)
+find_package(SDL2_image QUIET)
+find_package(SDL2_ttf QUIET)
 
 # Check if packages were found
 set(MISSING_LIBS "")
