@@ -117,13 +117,24 @@ if(APPLE)
         ${CMAKE_SOURCE_DIR}/${PROJECT_NAME}
     )
 
-    else() 
-        target_link_libraries(${PROJECT_NAME} PRIVATE
-        ${SDL2_LIBRARIES}
-        ${SDL2_MIXER_LIBRARIES}
-        ${SDL2_IMAGE_LIBRARIES}
-        ${SDL2_TTF_LIBRARIES}
+elseif(UNIX AND NOT APPLE) 
+        execute_process(
+            COMMAND sdl2-config --cflags
+            OUTPUT_VARIABLE SDL_CFLAGS
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${SDL_CFLAGS}")
+    
+    # Link all required libraries
+        target_link_libraries(${PROJECT_NAME}
+            SDL2
+            SDL2_image
+            SDL2_mixer
+            SDL2_ttf
         )
 
         set(RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
+else()
+    message(FATAL_ERROR "Nie mozna skompilowac na tej platformie :(")
 endif()
