@@ -111,7 +111,6 @@ if(APPLE)
 
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E echo "Creating symlink..."
-        COMMAND ${CMAKE_COMMAND} -E echo "Creating symlink..." ${PROJECT_BINARY_DIR} ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
         COMMAND ln -sf 
         ${PROJECT_BINARY_DIR}/${PROJECT_NAME}
         ${CMAKE_SOURCE_DIR}/${PROJECT_NAME}
@@ -134,7 +133,12 @@ elseif(UNIX AND NOT APPLE)
             SDL2_ttf
         )
 
-        set(RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E echo "Creating symlink..."
+        COMMAND ln -sf 
+        ${PROJECT_BINARY_DIR}/${PROJECT_NAME}
+        ${CMAKE_SOURCE_DIR}/${PROJECT_NAME}
+        )
 else()
     message(FATAL_ERROR "Nie mozna skompilowac na tej platformie :(")
 endif()
