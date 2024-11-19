@@ -40,7 +40,7 @@ endif()
 
 if(MISSING_LIBS)
     message(STATUS "Te biblioteki są potrzebne: ${MISSING_LIBS}")
-    string(REPLACE ";" " " MISSING_PACKAGES_STR "${MISSING_PACKAGES}")
+    string(REPLACE ";" " " MISSING_PACKAGES_STR "${MISSING_LIBS}")
     
     if(APPLE)
         message(STATUS "Jezeli posiadasz Homebrew, zainstaluj biblioteki za pomocą:")
