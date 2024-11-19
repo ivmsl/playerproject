@@ -45,7 +45,7 @@ if(MISSING_LIBS)
         message(STATUS "Jezeli posiadasz Homebrew, zainstaluj biblioteki za pomocą:")
         message(STATUS "brew install ${MISSING_LIBS}")
     elseif(UNIX AND NOT APPLE)
-
+        string(REPLACE ";" " " MISSING_PACKAGES_STR "${MISSING_PACKAGES}")
         message(STATUS "Aby zainstalować brakujące biblioteki, wpisz w terminalu:")
         message(STATUS "sudo apt-get install ${MISSING_LIBS}")
         message(STATUS "Uwaga. W zalezności od systemu zamiast apt moze występowac inny manager pakietow:")
