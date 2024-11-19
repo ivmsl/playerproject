@@ -1,13 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
 project(SDLPlayerProject)
 
-# Find SDL2 and its components
 find_package(SDL2 QUIET)
 find_package(SDL2_mixer QUIET)
 find_package(SDL2_image QUIET)
 find_package(SDL2_ttf QUIET)
 
-# Check if packages were found
 set(MISSING_LIBS "")
 if(NOT SDL2_FOUND)
     if (APPLE)
@@ -55,13 +53,11 @@ if(MISSING_LIBS)
     message(FATAL_ERROR "Missing required libraries. Please install them manually.")
 endif()
 
-# Add executable
 add_executable(${PROJECT_NAME} 
     main.c
     src/controls.c
 )
 
-# Include directories
 target_include_directories(${PROJECT_NAME} PRIVATE 
     ${SDL2_INCLUDE_DIRS}
     ${SDL2_MIXER_INCLUDE_DIRS}
@@ -70,7 +66,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}
 )
 
-# Platform-specific configurations
 if(APPLE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum macOS deployment version")
     include_directories(
@@ -85,7 +80,7 @@ if(APPLE)
         /usr/local/lib
     )
 
-        # Get SDL2 flags and libs using sdl2-config
+
     execute_process(
             COMMAND sdl2-config --cflags
             OUTPUT_VARIABLE SDL_CFLAGS
@@ -98,10 +93,10 @@ if(APPLE)
             OUTPUT_STRIP_TRAILING_WHITESPACE
     )
         
-        # Add the flags to compilation
+    
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${SDL_CFLAGS}")
         
-        # Link libraries (SDL_LIBS from sdl2-config plus additional libraries)
+
     target_link_libraries(${PROJECT_NAME}
             ${SDL_LIBS}
             SDL2_image
@@ -125,7 +120,6 @@ elseif(UNIX AND NOT APPLE)
     
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${SDL_CFLAGS}")
     
-    # Link all required libraries
         target_link_libraries(${PROJECT_NAME}
             SDL2
             SDL2_image
