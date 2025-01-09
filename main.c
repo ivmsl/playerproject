@@ -6,8 +6,8 @@
 #include "src/controls.h"
 #include "src/playlist.h"
 
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
+#define WINDOW_WIDTH 725
+#define WINDOW_HEIGHT 200
 #define BTTNPATH "res/textures/buttons01.png"
 #define MP3PATH "res/test/1.mp3"
 #define FONTPATH "res/fonts/Roboto-Medium.ttf"
