@@ -39,5 +39,6 @@ typedef struct texControls {
 
 
 extern void renderButtons(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs);
+extern void renderTitle(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs);
 
 #endif

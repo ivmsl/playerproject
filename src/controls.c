@@ -1,6 +1,8 @@
 #include <SDL.h>
+#include <SDL_mixer.h>
 #include <stdio.h>
 #include "controls.h"
+#include "plutils.h"
 
 void renderButtons(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs) {
         int windowWidth, windowHeight;
@@ -46,4 +48,41 @@ void renderButtons(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ct
 
         ctrs->next.renderPos = (struct SDL_Rect) {x_small + ((15 + small_button) * 2), y_small, small_button, small_button};
         SDL_RenderCopy(renderer, ctrs->atlas, &ctrs->next.texPos, &ctrs->next.renderPos);
+}
+
+void renderTitle(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs) {
+    int windowWidth, windowHeight;
+        SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+
+        SDL_Rect rect = {
+            windowWidth / 4,
+            windowHeight / 4,
+            windowWidth / 2,
+            windowHeight / 2
+        };
+
+        rect.x = rect.x - (rect.h / 2);
+        rect.h = 0;
+        rect.w = 0;
+
+        if (!ctrs->title.title) {
+            const char* title = Mix_GetMusicTitle(NULL);
+            if (strcmp(title, "") > 0) {
+                ctrs->title.title = getTextureFromWords(renderer, ctrs->font, title);
+              
+                int tempW, tempH;
+                SDL_QueryTexture(ctrs->title.title, NULL, NULL, &tempW, &tempH);
+
+                printf("Text W: %i text H: %i \n", tempW, tempH);
+                rect.w = tempW;  // 10 pixels padding on each side
+                rect.h = tempH; // 5 pixels padding top and bottom
+                rect.x = rect.x - (rect.h / 4);
+                ctrs->title.renderPos = rect; 
+            }
+
+        }
+        else {
+            SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+            SDL_RenderCopy(renderer, ctrs->title.title, NULL, &ctrs->title.renderPos);
+        }
 }

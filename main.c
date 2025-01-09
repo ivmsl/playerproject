@@ -5,6 +5,7 @@
 #include <SDL_mixer.h>
 #include "src/controls.h"
 #include "src/playlist.h"
+#include "src/plutils.h"
 
 #define WINDOW_WIDTH 725
 #define WINDOW_HEIGHT 200
@@ -12,41 +13,6 @@
 #define MP3PATH "res/test/1.mp3"
 #define FONTPATH "res/fonts/Roboto-Medium.ttf"
 
-
-SDL_Texture* loadTexture(SDL_Renderer* renderer, const char* path) {
-    SDL_Surface* surface = IMG_Load(path);
-    if (!surface) {
-        printf("Error loading image: %s\n", IMG_GetError());
-        return NULL;
-    }
-    
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-    if (!texture) {
-        printf("Error creating texture: %s\n", SDL_GetError());
-    }
-    
-    SDL_FreeSurface(surface);
-    return texture;
-}
-
-
-SDL_Texture* getTextureFromWords(SDL_Renderer* renderer, TTF_Font* font, char* text) {
-    SDL_Color black = {0, 0, 0, 255};
-
-    SDL_Surface* tmp = TTF_RenderText_Blended(font, text, black);
-    if (!tmp) {
-        printf("Error getting text surface: %s\n", TTF_GetError());
-    }
-
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, tmp);
-    if (!texture) {
-        printf("Error creating texture: %s\n", SDL_GetError());
-    }
-
-    SDL_FreeSurface(tmp);
-    return texture;
-
-}
 
 void eventLoop(SDL_Window *window, int* quit, texControls_t* controls, Mix_Music* music){
     // Event handler
@@ -125,48 +91,14 @@ void doRender(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs) {
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderClear(renderer);
 
-        int windowWidth, windowHeight;
-        SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-
-        SDL_Rect rect = {
-            windowWidth / 4,
-            windowHeight / 4,
-            windowWidth / 2,
-            windowHeight / 2
-        };
-
-        rect.x = rect.x - (rect.h / 2);
-        rect.h = 0;
-        rect.w = 0;
-
-        if (!ctrs->title.title) {
-            char* title = Mix_GetMusicTitle(NULL);
-            if (strcmp(title, "") > 0) {
-                ctrs->title.title = getTextureFromWords(renderer, ctrs->font, title);
-              
-                int tempW, tempH;
-                SDL_QueryTexture(ctrs->title.title, NULL, NULL, &tempW, &tempH);
-
-                printf("Text W: %i text H: %i \n", tempW, tempH);
-                rect.w = tempW;  // 10 pixels padding on each side
-                rect.h = tempH; // 5 pixels padding top and bottom
-                rect.x = rect.x - (rect.h / 4);
-                ctrs->title.renderPos = rect; 
-            }
-
-        }
-        else {
-            SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-            SDL_RenderCopy(renderer, ctrs->title.title, NULL, &ctrs->title.renderPos);
-        }
-
         //SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
         //SDL_RenderFillRect(renderer, &rect);
         
 
         //from controls.c!!!
+        
         renderButtons(window, renderer, ctrs);
-
+        renderTitle(window, renderer, ctrs);
         // Update screen
         SDL_RenderPresent(renderer);
 
