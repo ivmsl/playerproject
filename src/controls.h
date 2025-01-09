@@ -5,6 +5,14 @@
 #ifndef controls_h_
 #define controls_h_
 
+typedef struct title {
+    struct SDL_Rect renderPos;
+    SDL_Texture *title;
+    //ou bien sa doit etre struct_text
+} title_t;
+
+//j'ai besoin d'avoir quelque text primitives? 
+
 enum switchTex {
     PLAY_DISPL,
     PAUSE_DISPL,
@@ -25,8 +33,8 @@ typedef struct texControls {
     unitControlRender_t stop;
     unitControlRender_t next;
     enum switchTex ctrlAct;
-    SDL_Texture *title; 
-
+    title_t title;
+    TTF_Font* font;
 } texControls_t;
 
 

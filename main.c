@@ -4,6 +4,7 @@
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
 #include "src/controls.h"
+#include "src/playlist.h"
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
@@ -120,7 +121,7 @@ void eventLoop(SDL_Window *window, int* quit, texControls_t* controls, Mix_Music
         }
 }
 
-void doRender(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs, TTF_Font* font) {
+void doRender(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs) {
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderClear(renderer);
 
@@ -135,22 +136,28 @@ void doRender(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs, T
         };
 
         rect.x = rect.x - (rect.h / 2);
-        rect.h = 30;
+        rect.h = 0;
+        rect.w = 0;
 
-        if (!ctrs->title) {
+        if (!ctrs->title.title) {
             char* title = Mix_GetMusicTitle(NULL);
             if (strcmp(title, "") > 0) {
-                ctrs->title = getTextureFromWords(renderer, font, title);
-                rect.w = (int) strlen(title) * 5;
-                rect.x = rect.x - (rect.h / 2);
-                rect.h = 30;
-                printf("title: %lu, rectw: %d rectx %d recth %d", strlen(title), rect.w, rect.x, rect.h);
+                ctrs->title.title = getTextureFromWords(renderer, ctrs->font, title);
+              
+                int tempW, tempH;
+                SDL_QueryTexture(ctrs->title.title, NULL, NULL, &tempW, &tempH);
+
+                printf("Text W: %i text H: %i \n", tempW, tempH);
+                rect.w = tempW;  // 10 pixels padding on each side
+                rect.h = tempH; // 5 pixels padding top and bottom
+                rect.x = rect.x - (rect.h / 4);
+                ctrs->title.renderPos = rect; 
             }
 
         }
         else {
             SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-            SDL_RenderCopy(renderer, ctrs->title, NULL, &rect);
+            SDL_RenderCopy(renderer, ctrs->title.title, NULL, &ctrs->title.renderPos);
         }
 
         //SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
@@ -197,8 +204,8 @@ int main(int argc, char* args[]) {
   
     Mix_Music *music = Mix_LoadMUS(MP3PATH);
 
-    // Create window
-    window = SDL_CreateWindow("SDL2 Window Example",
+    // Create window (WINDOW POINTER!!)
+    window = SDL_CreateWindow("Simple music player",
                               SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                               WINDOW_WIDTH, WINDOW_HEIGHT,
                               SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
@@ -207,7 +214,7 @@ int main(int argc, char* args[]) {
         return 1;
     }
 
-    // Create renderer
+    // Create renderer (RENDERER POINTER!!)
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (renderer == NULL) {
         printf("Renderer could not be created! SDL_Error: %s\n", SDL_GetError());
@@ -223,7 +230,8 @@ int main(int argc, char* args[]) {
         textureControls.stop.texPos = (struct SDL_Rect) {450, 0, 150, 128};
         textureControls.next.texPos = (struct SDL_Rect) {600, 0, 150, 128};
         textureControls.ctrlAct = PLAY_DISPL;
-        textureControls.title = NULL;
+        textureControls.title = (title_t) {NULL, NULL};
+        textureControls.font = font;
 
     // Main loop flag
     int quit = 0;
@@ -234,7 +242,7 @@ int main(int argc, char* args[]) {
         eventLoop(window, &quit, &textureControls, music);
 
         // Clear screen
-        doRender(window, renderer, &textureControls, font);
+        doRender(window, renderer, &textureControls);
         SDL_Delay(10);
     }
 
@@ -242,10 +250,9 @@ int main(int argc, char* args[]) {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_DestroyTexture(textureControls.atlas);
-    SDL_DestroyTexture(textureControls.title);
+    SDL_DestroyTexture(textureControls.title.title);
 
     Mix_FreeMusic(music);
-
     TTF_CloseFont(font);
 
     
