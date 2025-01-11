@@ -43,15 +43,15 @@ void eventLoop(SDL_Window *window, int* quit) {
                 struct GUI *gui = getGUIHandler();
                 if (checkAreaClick(mouseX, mouseY, &(gui->buttons.play.renderPos))) {
                         playPauseAndSwitchButton();
-                    }     
+                }
+                if (checkAreaClick(mouseX, mouseY, &(gui->buttons.next.renderPos))) {
+                        events = NEED_NEXT_TRACK;
+                }     
                 break;     
             default:
                 break;
             }
     }
-
-    //switch_states
-    
 
 }
 
@@ -66,7 +66,7 @@ void doRender(SDL_Window *window, SDL_Renderer *renderer) {
         //from controls.c!!!
         
         renderButtons(window, renderer);
-        renderTitle(window, renderer);
+        if (events != NEED_NEXT_TRACK && events != CHANGING_TRACK) renderTitle(window, renderer);
         renderSlider(window, renderer);
         // Update screen
         SDL_RenderPresent(renderer);
@@ -74,7 +74,7 @@ void doRender(SDL_Window *window, SDL_Renderer *renderer) {
 }
 
 int main(void) {
-    printf("ENTRYPOINT");
+
     SDL_Window* window = NULL;
     SDL_Renderer* renderer = NULL;
 
@@ -123,7 +123,7 @@ int main(void) {
         quit = 1;
     }
 
-    Mix_Music *music = Mix_LoadMUS(MP3PATH);
+    //Mix_Music *music = Mix_LoadMUS(MP3PATH);
 
     struct dir_content *dir_c = open_directory("./res/test");
     printf("Current dir: %s, Len: %i, Path: %s\n", get_curr_dir(), dir_c->len, dir_c->path);
@@ -140,6 +140,20 @@ int main(void) {
 
         // Clear screen
         doRender(window, renderer);
+            //switch_states
+        switch (events)
+        {
+        case NEED_NEXT_TRACK:
+            events = CHANGING_TRACK;
+            //printf("Exit code next track: %i \n", playlist_next());
+            playlist_next();
+
+        break;
+    
+        default:
+            break;
+    }    
+
         SDL_Delay(10);
     }
 

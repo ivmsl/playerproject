@@ -27,12 +27,13 @@ typedef struct slider_info {
 enum playerEvent {
     NOOP,
     NEED_NEXT_TRACK,
+    CHANGING_TRACK,
     PLAYER_PLAYING,
     NEED_PAUSING,
     PLAYER_PAUSED,
     NEED_RESUME,
     UPDATING_PLAYLIST,
-    PLAYER_STOPPED
+    PLAYER_STOPPED,
 };
 
 enum switchTex {
@@ -78,5 +79,8 @@ extern void playPauseAndSwitchButton();
 extern int deinitGUI(void);
 extern struct GUI* getGUIHandler(void);
 extern struct GUI *gui;
+extern Mix_Music* getMusicHandler(void);
+enum playerEvent events;
+void updateCurrentMusic(Mix_Music *music);
 
 #endif

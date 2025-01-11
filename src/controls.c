@@ -12,6 +12,7 @@
 
 struct RAW_SOURCES *raw_res = NULL;
 struct GUI *gui = NULL;
+enum playerEvent events;
 
 struct GUI* getGUIHandler(void) {
     if (gui) {
@@ -20,6 +21,28 @@ struct GUI* getGUIHandler(void) {
     else return NULL;
 }
 
+Mix_Music* getMusicHandler(void) {
+    if (gui) {
+        if (!gui->currentlyPlaying) {
+            return NULL;
+        }
+        else return gui->currentlyPlaying;
+    }
+    else return NULL;
+}
+
+void updateCurrentMusic(Mix_Music *music) {
+    if (gui) {
+      //  printf("Update music \n");
+        if (gui->title.title) SDL_DestroyTexture(gui->title.title);
+        gui->title.title = NULL;
+        gui->currentlyPlaying = music;
+        Mix_PlayMusic(gui->currentlyPlaying, 1);
+        gui->buttons.ctrlAct = PAUSE_DISPL;
+        events = NOOP;
+        
+    }
+}
 
 int initGUI(SDL_Renderer *renderer, const char *font_path, const char *atl_path) {
 
@@ -29,6 +52,7 @@ int initGUI(SDL_Renderer *renderer, const char *font_path, const char *atl_path)
         perror("Cannot allocate for gui. Program halted \n");
         return -1;
     }
+    gui->currentlyPlaying = NULL;
 
     printf("CREATED ALLOC");
     
@@ -79,6 +103,12 @@ int deinitGUI(void) {
 
 
 void playPauseAndSwitchButton() {
+    if (!gui->currentlyPlaying) {
+        printf("No chance \n");
+        events = NEED_NEXT_TRACK;
+        return;
+    }
+
     texControls_t *controls = &(gui->buttons);
     if (controls->ctrlAct == PLAY_DISPL) {
         controls->ctrlAct = PAUSE_DISPL;
@@ -90,7 +120,13 @@ void playPauseAndSwitchButton() {
                             
     } else if (controls->ctrlAct == PAUSE_DISPL || controls->ctrlAct == IDLE) {
         controls->ctrlAct = PLAY_DISPL;
-        Mix_PauseMusic();
+        if (Mix_PlayingMusic()) {
+            Mix_PauseMusic();
+        }
+        else {
+            Mix_PlayMusic(gui->currentlyPlaying, 1);
+        }
+        
     }
 
 }
@@ -101,8 +137,6 @@ void renderButtons(SDL_Window *window, SDL_Renderer *renderer) {
         
 
         texControls_t *ctrs = &(gui->buttons);
-
-
 
         int big_button = BIG_BUTTN_DEF;
         int small_button = SMALL_BUTTN_DEF;
