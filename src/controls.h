@@ -11,6 +11,15 @@ typedef struct title {
     //ou bien sa doit etre struct_text
 } title_t;
 
+
+typedef struct slider_info {
+    double duration; //Mix_MusicDuration(Mix_Music* music)
+    double position; //Mix_GetMusicPosition(Mix_Music* music)
+    struct SDL_Rect slider_bar;
+    struct SDL_Rect slider;
+} slider_info_t;
+
+///
 //j'ai besoin d'avoir quelque text primitives? 
 
 enum switchTex {
@@ -35,10 +44,12 @@ typedef struct texControls {
     enum switchTex ctrlAct;
     title_t title;
     TTF_Font* font;
+    slider_info_t slider;
 } texControls_t;
 
 
 extern void renderButtons(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs);
 extern void renderTitle(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs);
+extern void renderSlider(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs);
 
 #endif

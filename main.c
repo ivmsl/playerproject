@@ -88,7 +88,7 @@ void eventLoop(SDL_Window *window, int* quit, texControls_t* controls, Mix_Music
 }
 
 void doRender(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs) {
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_SetRenderDrawColor(renderer, 217, 217, 217, 255);
         SDL_RenderClear(renderer);
 
         //SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
@@ -99,6 +99,7 @@ void doRender(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs) {
         
         renderButtons(window, renderer, ctrs);
         renderTitle(window, renderer, ctrs);
+        renderSlider(window, renderer, ctrs);
         // Update screen
         SDL_RenderPresent(renderer);
 
@@ -164,8 +165,8 @@ int main(int argc, char* args[]) {
         textureControls.ctrlAct = PLAY_DISPL;
         textureControls.title = (title_t) {NULL, NULL};
         textureControls.font = font;
-
-    // Main loop flag
+        textureControls.slider = (slider_info_t) {0, 0, NULL, NULL};
+    // Main loop flag  
     int quit = 0;
     // Main loop
     while (!quit) {
