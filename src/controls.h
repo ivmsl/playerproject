@@ -27,6 +27,7 @@ typedef struct slider_info {
 enum playerEvent {
     NOOP,
     NEED_NEXT_TRACK,
+    NEED_PREV_TRACK,
     CHANGING_TRACK,
     PLAYER_PLAYING,
     NEED_PAUSING,

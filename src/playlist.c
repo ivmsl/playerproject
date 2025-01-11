@@ -72,13 +72,14 @@ int playlist_from_dir(struct dir_content* dir_c) {
 
 }
 
-int playlist_next(void) {
+int select_track_from_playlist(int pos) {
+    
     Mix_Music *music;
     if (getMusicHandler() != NULL) {
         music = getMusicHandler();
         Mix_HaltMusic();
         Mix_FreeMusic(music);
-        int pos = (playlist_str->current + 1) % (playlist_str->len); 
+        
         playlist_entry *cursw = &(playlist_str->playlist[pos]);
         
         printf("TrackName from second: %s Len: %i Pos: %i\n", cursw->name, playlist_str->len, pos);
@@ -89,12 +90,17 @@ int playlist_next(void) {
             strcat(fullpath, cursw->name);
 
         }
-        else return -1;
+        else {
+            return -1;
+        }
 
         if ((music = Mix_LoadMUS(fullpath))) {
             playlist_str->current = pos;
             updateCurrentMusic(music);
-        } else return -1;
+        } else {
+            free(fullpath);   
+            return -1;
+        }
         //Mix_FadeInMusic()
         free(fullpath);
         return 0;
@@ -114,11 +120,26 @@ int playlist_next(void) {
 
         if (music = Mix_LoadMUS(fullpath)) {
             updateCurrentMusic(music);
-        } else return -1;
+        } else {
+            free(fullpath);
+            return -1;
+        }
         //Mix_FadeInMusic()
         free(fullpath);
         return 0;
     }
     
 
+}
+
+int playlist_prev(void) {
+    int pos = (playlist_str->current - 1) % (playlist_str->len); 
+    if (pos < 0) pos = playlist_str->len - 1;
+    return select_track_from_playlist(pos);    
+}
+
+
+int playlist_next(void) {
+    int pos = (playlist_str->current + 1) % (playlist_str->len); 
+    return select_track_from_playlist(pos);    
 }

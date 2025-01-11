@@ -47,6 +47,9 @@ void eventLoop(SDL_Window *window, int* quit) {
                 if (checkAreaClick(mouseX, mouseY, &(gui->buttons.next.renderPos))) {
                         events = NEED_NEXT_TRACK;
                 }
+                if (checkAreaClick(mouseX, mouseY, &(gui->buttons.prev.renderPos))) {
+                        events = NEED_PREV_TRACK;
+                }
                 if (checkAreaClick(mouseX, mouseY, &(gui->slider.slider))) {
                         setSliderPos(mouseX);
                 }          
@@ -152,7 +155,13 @@ int main(void) {
             playlist_next();
 
         break;
-    
+
+        case NEED_PREV_TRACK:
+            events = CHANGING_TRACK;
+            //printf("Exit code next track: %i \n", playlist_next());
+            playlist_prev();
+
+        break;
         default:
             break;
     }    
