@@ -76,7 +76,7 @@ extern int initGUI(SDL_Renderer *renderer, const char *font_path, const char *at
 extern void renderButtons(SDL_Window *window, SDL_Renderer *renderer);
 extern void renderTitle(SDL_Window *window, SDL_Renderer *renderer);
 extern void renderSlider(SDL_Window *window, SDL_Renderer *renderer);
-extern void playPauseAndSwitchButton();
+extern void playPauseAndSwitchButton(void);
 extern int deinitGUI(void);
 extern struct GUI* getGUIHandler(void);
 extern struct GUI *gui;

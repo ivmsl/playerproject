@@ -38,6 +38,7 @@ void updateCurrentMusic(Mix_Music *music) {
         gui->title.title = NULL;
         gui->currentlyPlaying = music;
         Mix_PlayMusic(gui->currentlyPlaying, 1);
+        gui->slider.duration = Mix_MusicDuration(NULL);
         gui->buttons.ctrlAct = PAUSE_DISPL;
         events = NOOP;
         

@@ -118,7 +118,7 @@ int select_track_from_playlist(int pos) {
         }
         else return -1;
 
-        if (music = Mix_LoadMUS(fullpath)) {
+        if ((music = Mix_LoadMUS(fullpath))) {
             updateCurrentMusic(music);
         } else {
             free(fullpath);
@@ -143,3 +143,13 @@ int playlist_next(void) {
     int pos = (playlist_str->current + 1) % (playlist_str->len); 
     return select_track_from_playlist(pos);    
 }
+
+void musicFinishedCallback() {
+    events = NEED_NEXT_TRACK;
+}
+
+void registerHaltCallback() {
+    Mix_HookMusicFinished(musicFinishedCallback);
+}
+
+

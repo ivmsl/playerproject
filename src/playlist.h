@@ -18,5 +18,6 @@ extern int playlist_from_dir(struct dir_content* dir_c);
 extern plist* get_playlist_handler(void);
 extern int playlist_next(void);
 extern int playlist_prev(void);
+extern void registerHaltCallback(void);
 
 #endif

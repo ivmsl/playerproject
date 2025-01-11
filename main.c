@@ -40,7 +40,7 @@ void eventLoop(SDL_Window *window, int* quit) {
             case SDL_MOUSEBUTTONDOWN:
                 SDL_GetMouseState(&mouseX, &mouseY);
                 printf("MouseX: %d, MouseY: %d \n", mouseX, mouseY);
-                struct GUI *gui = getGUIHandler();
+                //struct GUI *gui = getGUIHandler();
                 if (checkAreaClick(mouseX, mouseY, &(gui->buttons.play.renderPos))) {
                         playPauseAndSwitchButton();
                 }
@@ -137,6 +137,7 @@ int main(void) {
     plist *playlist = get_playlist_handler();
     if (playlist) printf("Name [2]: %s \n", playlist->playlist[2].name);
 
+    registerHaltCallback();
 
     // Main loop
     while (!quit) {
