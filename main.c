@@ -46,7 +46,10 @@ void eventLoop(SDL_Window *window, int* quit) {
                 }
                 if (checkAreaClick(mouseX, mouseY, &(gui->buttons.next.renderPos))) {
                         events = NEED_NEXT_TRACK;
-                }     
+                }
+                if (checkAreaClick(mouseX, mouseY, &(gui->slider.slider))) {
+                        setSliderPos(mouseX);
+                }          
                 break;     
             default:
                 break;

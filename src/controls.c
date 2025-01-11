@@ -254,3 +254,14 @@ void renderSlider(SDL_Window *window, SDL_Renderer *renderer) {
         SDL_RenderDrawRect(renderer, &(slider->slider_bar)); 
 }
 
+void setSliderPos(int x) {
+        if (gui->currentlyPlaying) {
+            double proc =  ((1.0 * (x - gui->slider.slider.x)) / gui->slider.slider.w); 
+            //(100 * (x - gui->slider.slider.x)) / (double) ((gui->slider.slider.w) + gui->slider.slider.x) / 100; 
+            printf("Procent: %lf X: %i Length: %i Xs: %i \n", proc, x, (gui->slider.slider.w), x - gui->slider.slider.x);
+            Mix_SetMusicPosition(gui->slider.duration * proc);
+        }
+    
+    //(slider->slider.w - 6) + slider->slider.x
+}
+

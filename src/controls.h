@@ -82,5 +82,6 @@ extern struct GUI *gui;
 extern Mix_Music* getMusicHandler(void);
 enum playerEvent events;
 void updateCurrentMusic(Mix_Music *music);
+void setSliderPos(int x);
 
 #endif
