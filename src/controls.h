@@ -5,9 +5,7 @@
 #ifndef controls_h_
 #define controls_h_
 
-struct GUI {
-    
-};
+
 
 typedef struct title {
     struct SDL_Rect renderPos;
@@ -50,22 +48,35 @@ typedef struct unitControlRender {
 
 
 typedef struct texControls {
-    struct SDL_Texture *atlas; 
     unitControlRender_t play;
     unitControlRender_t pause;
     unitControlRender_t prev;
     unitControlRender_t stop;
     unitControlRender_t next;
     enum switchTex ctrlAct;
-    title_t title;
-    TTF_Font* font;
-    slider_info_t slider;
+    
 } texControls_t;
 
+struct RAW_SOURCES {
+    struct SDL_Texture *atlas; 
+    TTF_Font* font;
+};
 
-extern void renderButtons(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs);
-extern void renderTitle(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs);
-extern void renderSlider(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs);
-extern void playPauseAndSwitchButton(texControls_t* controls, Mix_Music* music);
+struct GUI {
+    slider_info_t slider;
+    title_t title;
+    texControls_t buttons;
+    Mix_Music *currentlyPlaying;
+};
+
+
+extern int initGUI(SDL_Renderer *renderer, const char *font_path, const char *atl_path);
+extern void renderButtons(SDL_Window *window, SDL_Renderer *renderer);
+extern void renderTitle(SDL_Window *window, SDL_Renderer *renderer);
+extern void renderSlider(SDL_Window *window, SDL_Renderer *renderer);
+extern void playPauseAndSwitchButton();
+extern int deinitGUI(void);
+extern struct GUI* getGUIHandler(void);
+extern struct GUI *gui;
 
 #endif

@@ -3,6 +3,7 @@
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
 #include <SDL_image.h>
+//#include "plutils.h"
 
 SDL_Texture* loadTexture(SDL_Renderer* renderer, const char* path) {
     SDL_Surface* surface = IMG_Load(path);
@@ -38,3 +39,17 @@ SDL_Texture* getTextureFromWords(SDL_Renderer* renderer, TTF_Font* font, char* t
     return texture;
 
 }
+
+int checkAreaClick(int mouseX, int mouseY, struct SDL_Rect* area) {
+    
+    if (mouseX >= area->x && 
+        mouseX < area->x + area->w &&
+        mouseY >= area->y && 
+        mouseY < area->y + area->h)
+    {
+        return 1;
+    }
+    else return 0;        
+    
+}
+

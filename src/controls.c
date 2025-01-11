@@ -10,14 +10,82 @@
 
 //!TODO — store WindowSize somewhere to not call the API function each render function 
 
+struct RAW_SOURCES *raw_res = NULL;
+struct GUI *gui = NULL;
 
-void playPauseAndSwitchButton(texControls_t* controls, Mix_Music* music) {
+struct GUI* getGUIHandler(void) {
+    if (gui) {
+        return gui;
+    }
+    else return NULL;
+}
+
+
+int initGUI(SDL_Renderer *renderer, const char *font_path, const char *atl_path) {
+
+    printf("Create Alloc");
+    gui = (struct GUI*) calloc(1, sizeof(struct GUI));
+    if (!gui) {
+        perror("Cannot allocate for gui. Program halted \n");
+        return -1;
+    }
+
+    printf("CREATED ALLOC");
+    
+    gui->buttons.play.texPos = (struct SDL_Rect) {0, 0, 150, 128};  // x, y, width, height in the texture atlas
+    gui->buttons.pause.texPos = (struct SDL_Rect) {150, 0, 150, 128};
+    gui->buttons.prev.texPos = (struct SDL_Rect) {300, 0, 150, 128};
+    gui->buttons.stop.texPos = (struct SDL_Rect) {450, 0, 150, 128};
+    gui->buttons.next.texPos = (struct SDL_Rect) {600, 0, 150, 128};
+    gui->buttons.ctrlAct = PLAY_DISPL;
+    gui->slider = (slider_info_t) {0, 0, NULL, NULL};
+    gui->title = (title_t) {NULL, NULL};
+
+    raw_res = (struct RAW_SOURCES*) calloc(1, sizeof(struct RAW_SOURCES));
+    if (!raw_res) {
+        perror("Cannot allocate for raw resources (textures, fonts). Program halted \n");
+        return -1;
+    }
+
+    raw_res->atlas = (SDL_Texture*) loadTexture(renderer, atl_path);
+    if (!raw_res->atlas) {
+        perror("Cannot load texture atlas.\n");
+    }
+
+    raw_res->font = TTF_OpenFont(font_path, 48);
+    if (!raw_res->font) {
+        printf("Cannot open the font %s", TTF_GetError());
+    }
+
+    return 0;
+}
+
+int deinitGUI(void) {
+    if (raw_res->font) TTF_CloseFont(raw_res->font);
+    if (raw_res->atlas) SDL_DestroyTexture(raw_res->atlas);
+    if (raw_res) {
+        free(raw_res); 
+        raw_res = NULL;
+    }
+    if (gui->title.title) SDL_DestroyTexture(gui->title.title);
+    if (gui->currentlyPlaying)  Mix_FreeMusic(gui->currentlyPlaying);
+    if (gui) {
+        free(gui);
+        gui = NULL;
+    }
+
+    return 0;   
+}
+
+
+void playPauseAndSwitchButton() {
+    texControls_t *controls = &(gui->buttons);
     if (controls->ctrlAct == PLAY_DISPL) {
         controls->ctrlAct = PAUSE_DISPL;
         if (Mix_PausedMusic()) {
             Mix_ResumeMusic();
         } else {
-            Mix_PlayMusic(music, 1);
+            Mix_PlayMusic(gui->currentlyPlaying, 1);
         }
                             
     } else if (controls->ctrlAct == PAUSE_DISPL || controls->ctrlAct == IDLE) {
@@ -27,10 +95,14 @@ void playPauseAndSwitchButton(texControls_t* controls, Mix_Music* music) {
 
 }
 
-void renderButtons(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs) {
+void renderButtons(SDL_Window *window, SDL_Renderer *renderer) {
         int windowWidth, windowHeight;
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
         
+
+        texControls_t *ctrs = &(gui->buttons);
+
+
 
         int big_button = BIG_BUTTN_DEF;
         int small_button = SMALL_BUTTN_DEF;
@@ -54,10 +126,10 @@ void renderButtons(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ct
         switch (ctrs->ctrlAct)
         {
         case PAUSE_DISPL:
-            SDL_RenderCopy(renderer, ctrs->atlas, &ctrs->pause.texPos, &ctrs->pause.renderPos);
+            SDL_RenderCopy(renderer, raw_res->atlas, &ctrs->pause.texPos, &ctrs->pause.renderPos);
             break;
         default:
-            SDL_RenderCopy(renderer, ctrs->atlas, &ctrs->play.texPos, &ctrs->play.renderPos);
+            SDL_RenderCopy(renderer, raw_res->atlas, &ctrs->play.texPos, &ctrs->play.renderPos);
             break;
         }
         
@@ -65,59 +137,59 @@ void renderButtons(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ct
         //SDL_RenderCopy(renderer, atlas, &pauseButton, &dstRect);
 
         ctrs->prev.renderPos = (struct SDL_Rect) {x_small, y_small, small_button, small_button};
-        SDL_RenderCopy(renderer, ctrs->atlas, &ctrs->prev.texPos, &ctrs->prev.renderPos);
+        SDL_RenderCopy(renderer, raw_res->atlas, &ctrs->prev.texPos, &ctrs->prev.renderPos);
         
         ctrs->stop.renderPos = (struct SDL_Rect) {x_small + (small_gap + small_button) * 1, y_small, small_button, small_button};
-        SDL_RenderCopy(renderer, ctrs->atlas, &ctrs->stop.texPos, &ctrs->stop.renderPos);
+        SDL_RenderCopy(renderer, raw_res->atlas, &ctrs->stop.texPos, &ctrs->stop.renderPos);
 
         ctrs->next.renderPos = (struct SDL_Rect) {x_small + ((small_gap + small_button) * 2), y_small, small_button, small_button};
-        SDL_RenderCopy(renderer, ctrs->atlas, &ctrs->next.texPos, &ctrs->next.renderPos);
+        SDL_RenderCopy(renderer, raw_res->atlas, &ctrs->next.texPos, &ctrs->next.renderPos);
 
         SDL_SetRenderDrawColor(renderer, 183, 45, 45, 100);
         SDL_RenderDrawRect(renderer, &(ctrs->play.renderPos)); 
 }
 
-void renderTitle(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs) {
+void renderTitle(SDL_Window *window, SDL_Renderer *renderer) {
         int windowWidth, windowHeight;
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
 
         int x_cord = 25 + BIG_BUTTN_DEF + SMALL_GAP;
-        int y_cord = ctrs->play.renderPos.y;
+        int y_cord = gui->buttons.play.renderPos.y;
         SDL_Rect rect = {x_cord, y_cord, 0, 0};
 
 
-        if (!ctrs->title.title) {
+        if (!gui->title.title) {
             const char* title = Mix_GetMusicTitle(NULL);
             if (strcmp(title, "") > 0) {
-                ctrs->title.title = getTextureFromWords(renderer, ctrs->font, title);
+                gui->title.title = getTextureFromWords(renderer, raw_res->font, title);
               
                 int tempW, tempH;
-                SDL_QueryTexture(ctrs->title.title, NULL, NULL, &tempW, &tempH);
+                SDL_QueryTexture(gui->title.title, NULL, NULL, &tempW, &tempH);
 
                 //printf("Text W: %i text H: %i \n", tempW, tempH);
                 rect.w = tempW;  // 10 pixels padding on each side
                 rect.h = tempH; // 5 pixels padding top and botton
                 rect.y = (((windowHeight / 2) + rect.y) / 2) - (tempH / 2) - SMALL_GAP / 2;
                 ///
-                ctrs->title.renderPos = rect; 
+                gui->title.renderPos = rect; 
                 //printf("Text W: %i text H: %i X: %i Y: %i %i med %i med med %i\n", tempW, tempH, rect.x, rect.y, ctrs->play.renderPos.y, (windowHeight / 2), (((windowHeight / 2) + rect.y)));
             }
 
         }
         else {
             //SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-            ctrs->title.renderPos.y = (((windowHeight / 2) + rect.y) / 2) - (ctrs->title.renderPos.h / 2) - SMALL_GAP / 2;
-            SDL_RenderCopy(renderer, ctrs->title.title, NULL, &ctrs->title.renderPos);
+            gui->title.renderPos.y = (((windowHeight / 2) + rect.y) / 2) - (gui->title.renderPos.h / 2) - SMALL_GAP / 2;
+            SDL_RenderCopy(renderer, gui->title.title, NULL, &gui->title.renderPos);
 
             
 //            printf("Test: render pos %i %i %i %i \n", ctrs->title.renderPos.h, ctrs->title.renderPos.w, ctrs->title.renderPos.x, ctrs->title.renderPos.y);
         }
 }
 
-void renderSlider(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs) {
+void renderSlider(SDL_Window *window, SDL_Renderer *renderer) {
         int windowWidth, windowHeight;
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-        slider_info_t* slider = &(ctrs->slider);
+        slider_info_t* slider = &(gui->slider);
         
         int x_cord = 25 + BIG_BUTTN_DEF + SMALL_GAP;
         int y_cord = (windowHeight / 2) - 12;
