@@ -6,6 +6,7 @@
 #include "src/controls.h"
 #include "src/playlist.h"
 #include "src/plutils.h"
+#include "src/dirutils.h"
 
 #define WINDOW_WIDTH 725
 #define WINDOW_HEIGHT 200
@@ -33,21 +34,8 @@ void eventLoop(SDL_Window *window, int* quit, texControls_t* controls, Mix_Music
                     case SDLK_q:
                         *quit = 1;
                         break;
-                    case SDLK_SPACE:
-                        if (controls->ctrlAct == PLAY_DISPL) {
-                            controls->ctrlAct = PAUSE_DISPL;
-                            if (Mix_PausedMusic()) {
-                                Mix_ResumeMusic();
-                            }
-                            else {
-                                Mix_PlayMusic(music, 9);
-                            }
-                            
-                        }
-                        else if (controls->ctrlAct == PAUSE_DISPL || controls->ctrlAct == IDLE) {
-                            controls->ctrlAct = PLAY_DISPL;
-                            Mix_PauseMusic();
-                        }
+                    case SDLK_SPACE:    
+                        playPauseAndSwitchButton(controls, music);       
                 }
                 break;
             case SDL_MOUSEBUTTONDOWN:
@@ -62,21 +50,7 @@ void eventLoop(SDL_Window *window, int* quit, texControls_t* controls, Mix_Music
                     mouseY >= controls->pause.renderPos.y && 
                     mouseY < controls->pause.renderPos.y + controls->pause.renderPos.h) {
 
-                        if (controls->ctrlAct == PLAY_DISPL) {
-                            controls->ctrlAct = PAUSE_DISPL;
-                            if (Mix_PausedMusic()) {
-                                Mix_ResumeMusic();
-                            }
-                            else {
-                                Mix_PlayMusic(music, 9);
-                            }
-                        
-                        }
-                        else if (controls->ctrlAct == PAUSE_DISPL) {
-                            controls->ctrlAct = PLAY_DISPL;
-                            Mix_PauseMusic();
-                            
-                        }
+                        playPauseAndSwitchButton(controls, music);
                     }     
                 break;     
             default:
@@ -84,7 +58,11 @@ void eventLoop(SDL_Window *window, int* quit, texControls_t* controls, Mix_Music
             }
             
 
-        }
+    }
+
+    //switch_states
+    
+
 }
 
 void doRender(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs) {
@@ -137,6 +115,13 @@ int main(int argc, char* args[]) {
   
     Mix_Music *music = Mix_LoadMUS(MP3PATH);
 
+
+    struct dir_content *dir_c = open_directory("./res/test");
+    printf("Current dir: %s, Len: %i, Path: %s\n", get_curr_dir(), dir_c->len, dir_c->path);
+    printf("Exit code: %i\n", playlist_from_dir(dir_c));
+    plist *playlist = get_playlist_handler();
+    if (playlist) printf("Name [2]: %s \n", playlist->playlist[2].name);
+
     // Create window (WINDOW POINTER!!)
     window = SDL_CreateWindow("Simple music player",
                               SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
@@ -187,7 +172,9 @@ int main(int argc, char* args[]) {
 
     Mix_FreeMusic(music);
     TTF_CloseFont(font);
-
+    
+    //custom free-dir
+    free_dir_content(dir_c);
     
 
     // Quit SDL subsystems

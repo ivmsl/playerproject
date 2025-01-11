@@ -10,6 +10,23 @@
 
 //!TODO — store WindowSize somewhere to not call the API function each render function 
 
+
+void playPauseAndSwitchButton(texControls_t* controls, Mix_Music* music) {
+    if (controls->ctrlAct == PLAY_DISPL) {
+        controls->ctrlAct = PAUSE_DISPL;
+        if (Mix_PausedMusic()) {
+            Mix_ResumeMusic();
+        } else {
+            Mix_PlayMusic(music, 1);
+        }
+                            
+    } else if (controls->ctrlAct == PAUSE_DISPL || controls->ctrlAct == IDLE) {
+        controls->ctrlAct = PLAY_DISPL;
+        Mix_PauseMusic();
+    }
+
+}
+
 void renderButtons(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs) {
         int windowWidth, windowHeight;
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
@@ -122,7 +139,7 @@ void renderSlider(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctr
         if (!Mix_PausedMusic()) {
             int xs_cord = (int) (((slider->position * 100) / slider->duration / 100) * (slider->slider.w - 6) + slider->slider.x);
             slider->slider_bar = (struct SDL_Rect) {xs_cord, y_cord + 5, 5, 10};
-            printf("Position: %lf Duration: %lf Xs_cord: %i Procent: %lf In dic: %lf \n", slider->position, slider->duration, xs_cord, ((slider->position * 100) / slider->duration), (100 / (slider->position * 100) / slider->duration));
+           // printf("Position: %lf Duration: %lf Xs_cord: %i Procent: %lf In dic: %lf \n", slider->position, slider->duration, xs_cord, ((slider->position * 100) / slider->duration), (100 / (slider->position * 100) / slider->duration));
         }
 
     

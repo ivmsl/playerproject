@@ -5,6 +5,10 @@
 #ifndef controls_h_
 #define controls_h_
 
+struct GUI {
+    
+};
+
 typedef struct title {
     struct SDL_Rect renderPos;
     SDL_Texture *title;
@@ -21,6 +25,17 @@ typedef struct slider_info {
 
 ///
 //j'ai besoin d'avoir quelque text primitives? 
+
+enum playerEvent {
+    NOOP,
+    NEED_NEXT_TRACK,
+    PLAYER_PLAYING,
+    NEED_PAUSING,
+    PLAYER_PAUSED,
+    NEED_RESUME,
+    UPDATING_PLAYLIST,
+    PLAYER_STOPPED
+};
 
 enum switchTex {
     PLAY_DISPL,
@@ -51,5 +66,6 @@ typedef struct texControls {
 extern void renderButtons(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs);
 extern void renderTitle(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs);
 extern void renderSlider(SDL_Window *window, SDL_Renderer *renderer, texControls_t* ctrs);
+extern void playPauseAndSwitchButton(texControls_t* controls, Mix_Music* music);
 
 #endif
