@@ -7,6 +7,7 @@
 //#include <SDL_filesystem.h>
 
 plist *playlist_str;
+playlist_entry playlist_array[256]; //max size in playlist — 256 positions
 
 plist* get_playlist_handler(void) {
     if (playlist_str) {
@@ -14,6 +15,11 @@ plist* get_playlist_handler(void) {
     }
     else return NULL;
 
+}
+
+//!TODO
+int playlist_append(char* dirpath, char* filepath) {
+    return 0;   
 }
 
 int playlist_from_dir(struct dir_content* dir_c) {
@@ -28,8 +34,9 @@ int playlist_from_dir(struct dir_content* dir_c) {
         
     }
 
-    playlist_entry *playlist = (playlist_entry*) calloc(dir_c->len, sizeof(playlist_entry));
-    if (!playlist) {
+    
+    //playlist_entry *playlist = (playlist_entry*) calloc(dir_c->len, sizeof(playlist_entry));
+    if (!playlist_array) {
         perror("Unable to allocate playlist_entry array");
         return -1;
     }
@@ -42,29 +49,30 @@ int playlist_from_dir(struct dir_content* dir_c) {
         }
     }
     
-    playlist_str->playlist = playlist;
+    playlist_str->playlist = playlist_array;
     playlist_str->len = 0;
 
     dir_ent *mp3_ent = dir_c->first;
+    playlist_entry *entry = playlist_array; //if we use playlist on the heap — use that
 
     while (mp3_ent != NULL) {
-        playlist->folder = (char *) calloc(strlen(dir_c->path) + 1, sizeof(char));
+        entry->folder = (char *) calloc(strlen(dir_c->path) + 1, sizeof(char));
         
-        if (playlist->folder) {
-            memcpy(playlist->folder, dir_c->path, strlen(dir_c->path) + 1);
+        if (entry->folder) {
+            memcpy(entry->folder, dir_c->path, strlen(dir_c->path) + 1);
         } else {
             continue;
         }
-        playlist->name = (char *) calloc(strlen(mp3_ent->name) + 1, sizeof(char));
-        if (playlist->name) memcpy(playlist->name, mp3_ent->name, strlen(mp3_ent->name) + 1);
+        entry->name = (char *) calloc(strlen(mp3_ent->name) + 1, sizeof(char));
+        if (entry->name) memcpy(entry->name, mp3_ent->name, strlen(mp3_ent->name) + 1);
         mp3_ent = mp3_ent->next;
-        printf("Playlist entry_name: %s \n", playlist->name);
-        playlist++;
+        printf("Playlist entry_name: %s \n", entry->name);
+        entry++;
         playlist_str->len++;
     }
     playlist_str->current = 0;
 
-    if (!playlist) {
+    if (!playlist_array) {
         return -1;
     }
     
@@ -152,4 +160,10 @@ void registerHaltCallback() {
     Mix_HookMusicFinished(musicFinishedCallback);
 }
 
+
+char *GetCurrTrackName(void) {
+    char *temp = Mix_GetMusicTitle(NULL);
+    if (strcmp(temp, "")) return temp;
+    else return playlist_array[playlist_str->current].name;
+}
 

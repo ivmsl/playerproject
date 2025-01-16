@@ -1,4 +1,5 @@
 #include <SDL.h>
+#include <SDL_ttf.h>
 
 #ifndef plutils_h_
 #define plutils_h_

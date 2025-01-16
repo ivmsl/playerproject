@@ -19,5 +19,6 @@ extern plist* get_playlist_handler(void);
 extern int playlist_next(void);
 extern int playlist_prev(void);
 extern void registerHaltCallback(void);
+char *GetCurrTrackName(void); 
 
 #endif

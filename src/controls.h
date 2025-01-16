@@ -55,6 +55,7 @@ typedef struct texControls {
     unitControlRender_t prev;
     unitControlRender_t stop;
     unitControlRender_t next;
+    unitControlRender_t plst;
     enum switchTex ctrlAct;
     
 } texControls_t;

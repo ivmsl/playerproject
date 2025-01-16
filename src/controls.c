@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "controls.h"
 #include "plutils.h"
+#include "playlist.h"
 
 #define BIG_BUTTN_DEF 128
 #define SMALL_BUTTN_DEF 32
@@ -180,8 +181,12 @@ void renderButtons(SDL_Window *window, SDL_Renderer *renderer) {
         ctrs->next.renderPos = (struct SDL_Rect) {x_small + ((small_gap + small_button) * 2), y_small, small_button, small_button};
         SDL_RenderCopy(renderer, raw_res->atlas, &ctrs->next.texPos, &ctrs->next.renderPos);
 
+        ctrs->plst.renderPos = (struct SDL_Rect) {gui->slider.slider.x + gui->slider.slider.w - small_button, y_small, small_button, small_button};
+
+
         SDL_SetRenderDrawColor(renderer, 183, 45, 45, 100);
         SDL_RenderDrawRect(renderer, &(ctrs->play.renderPos)); 
+        SDL_RenderDrawRect(renderer, &(ctrs->plst.renderPos)); 
 }
 
 void renderTitle(SDL_Window *window, SDL_Renderer *renderer) {
@@ -194,7 +199,7 @@ void renderTitle(SDL_Window *window, SDL_Renderer *renderer) {
 
 
         if (!gui->title.title) {
-            const char* title = Mix_GetMusicTitle(NULL);
+            const char* title = GetCurrTrackName(); 
             if (strcmp(title, "") > 0) {
                 gui->title.title = getTextureFromWords(renderer, raw_res->font, title);
               
@@ -230,7 +235,6 @@ void renderSlider(SDL_Window *window, SDL_Renderer *renderer) {
         int y_cord = (windowHeight / 2) - 12;
 
         slider->slider = (struct SDL_Rect) {x_cord, y_cord, windowWidth - x_cord - 25, 24};
-        
 
         //somehow should be placed in init_play or smth
         if (slider->duration <= 0) {
