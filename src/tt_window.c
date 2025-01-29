@@ -29,8 +29,8 @@ playlist_gui *getpGUIHandler(void) {
 }
 
 
-void *render_playlist_if_present(void) {
-    if (!playlistWindow) return NULL;
+void render_playlist_if_present(void) {
+    if (!playlistWindow) return;
     
     plist *playlist = get_playlist_handler();
     for (int counter = 0; counter < playlist->len; counter++)
@@ -129,6 +129,7 @@ void updatePlaylistBlocks(void) {
 Uint32 get_playlist_window_id(void) {
     if (!playlistWindow) return 0;
     if (playlistWindow->window) return SDL_GetWindowID(playlistWindow->window);
+    else return 0;
 }
 
 int initPlaylistInfoBlock(void) {
@@ -177,14 +178,14 @@ wr_couple* createAndReturnPlaylistWindow(void) {
                               SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     if (playlistWindow->window == NULL) {
         printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
-        return 1;
+        return NULL;
     }
 
     // Create renderer (RENDERER POINTER!!)
     playlistWindow->renderer = SDL_CreateRenderer(playlistWindow->window, -1, SDL_RENDERER_ACCELERATED);
     if (playlistWindow->renderer == NULL) {
         printf("Renderer could not be created! SDL_Error: %s\n", SDL_GetError());
-        return 1;
+        return NULL;
     }    
     populate_playlist();
     initPlaylistInfoBlock();

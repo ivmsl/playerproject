@@ -45,20 +45,20 @@ void free_dir_content(struct dir_content *dir_con) {
         dir = opendir(path);
         if (dir == NULL) {
             perror("Unable to open dir \n");
-            return -1;
+            return NULL;
         }
 
         struct dir_content *dir_c = (struct dir_content*) calloc(1, sizeof(struct dir_content));
         if (!dir_c) {
             perror("Unable to allocate for dir_c");
-            return -1;
+            return NULL;
         }
 
         dir_c->path = realpath(path, NULL);
         if (!dir_c->path) {
             perror("Unable to allocate for dir_c->path");
             free(dir_c); 
-            return -1;
+            return NULL;
         }
 
         printf("Path: %s \n", dir_c->path);

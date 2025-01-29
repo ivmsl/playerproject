@@ -27,7 +27,7 @@ typedef struct playlist_info {
 } playlist_gui;
 
 
-extern void *render_playlist_if_present(void);
+extern void render_playlist_if_present(void);
 extern Uint32 get_playlist_window_id(void);
 extern int destroyPlaylistWindow(void);
 extern wr_couple* createAndReturnPlaylistWindow(void);

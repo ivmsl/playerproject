@@ -157,7 +157,7 @@ void doRender(wr_couple* mainRenderer) {
 
 int main(void) {
 
-    struct winManager windowsManager = (struct winManager) {(wr_couple) {NULL, NULL, -1}, NULL, NULL, NULL};
+    struct winManager windowsManager = (struct winManager) {(wr_couple) {NULL, NULL, 0}, NULL, NULL, NULL};
     
     // Main loop flag  
     int quit = 0;
@@ -212,7 +212,7 @@ int main(void) {
     //printf("Len: %i, Path: %s\n", dir_c->len, dir_c->path);
     //printf("Exit code: %i\n", playlist_from_dir(dir_c));
     initEmptyPlaylist();
-    plist *playlist = get_playlist_handler();
+    //plist *playlist = get_playlist_handler();
     //if (playlist) printf("Name [2]: %s \n", playlist->playlist[2].name);
 
     registerHaltCallback();

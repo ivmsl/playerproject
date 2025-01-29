@@ -66,9 +66,9 @@ int initGUI(SDL_Renderer *renderer, const char *font_path, const char *atl_path)
     gui->buttons.plst.texPos = (struct SDL_Rect) {300, 128, 150, 128};
     gui->buttons.ctrlAct = PLAY_DISPL;
     gui->slider = (slider_info_t) {0, 0, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
-    gui->volume = (slider_info_t) {128, MIX_MAX_VOLUME, {0, 0, 15, SMALL_BUTTN_DEF}, {0, 0, 128, SMALL_BUTTN_DEF}};
+    gui->volume = (slider_info_t) {128, MIX_MAX_VOLUME, {0, 0, 15, SMALL_BUTTN_DEF}, {0, 0, 128, SMALL_BUTTN_DEF}, {0, 0, 0, 0}};
     gui->volume.texturePos = (struct SDL_Rect) {0, 128, 300, 128};
-    gui->title = (title_t) {NULL, NULL};
+    gui->title = (title_t) {{0, 0, 0, 0}, NULL};
 
     raw_res = (struct RAW_SOURCES*) calloc(1, sizeof(struct RAW_SOURCES));
     if (!raw_res) {
@@ -107,7 +107,7 @@ int deinitGUI(void) {
 }
 
 
-void playPauseAndSwitchButton() {
+void playPauseAndSwitchButton(void) {
     if (events == PLAYER_STOPPED) {
         gui->buttons.ctrlAct = PLAY_DISPL;
         return;
@@ -278,7 +278,7 @@ void renderVolumeSlider(SDL_Window *window, SDL_Renderer *renderer) {
     slider->slider.y = gui->buttons.prev.renderPos.y;
     slider->slider.x = gui->buttons.plst.renderPos.x - SMALL_GAP - slider->slider.w;
     gui->volume.slider_bar.y = gui->volume.slider.y;
-    int x = gui->volume.position;
+    int x = (int) gui->volume.position;
     gui->volume.slider_bar.x = gui->volume.slider.x + x - 16;
     if (gui->volume.slider_bar.x < gui->volume.slider.x) gui->volume.slider_bar.x = gui->volume.slider.x;
    // slider->slider.w = 80;
@@ -298,7 +298,7 @@ void setVolumeSliderPos(int x) {
     //printf("New volume: %i \n", (x - gui->volume.slider.x));
     if (x - gui->volume.slider.x - 15 <= 0) gui->volume.position = 0;
     else gui->volume.position = (Uint8) (x - gui->volume.slider.x);
-    Mix_VolumeMusic(gui->volume.position);
+    Mix_VolumeMusic((int) (gui->volume.position));
     
 }
 
