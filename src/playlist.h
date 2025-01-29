@@ -26,5 +26,8 @@ void updatePlaylistBlocks(void);
 int initEmptyPlaylist(void);
 
 int playlist_append(char* dirpath); 
+void clearPlaylist(void);
+void toggleRepeat(void);
+void playlistStopMusic(void);
 
 #endif

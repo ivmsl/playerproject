@@ -4,6 +4,7 @@
 #define main_h_
 
 #define FONTPATH "res/fonts/Roboto-Medium.ttf"
+#define BTTNPATH "res/textures/buttons_cmp.png"
 
 typedef struct wr_couple {
     SDL_Window *window;
@@ -27,17 +28,13 @@ enum windowEvents {
     CLICK_FILEDIR_OPEN,
     FILEDIR_OPENED,
     CLICK_FILEDIR_CLOSE,
-    FILEDIR_CLOSED
-};
-
-
-enum playlistEvents {
-    PLAYLIST_IDLE,
+    FILEDIR_CLOSED,
     PLAYLIST_CLEAR_PRESS,
     PLAYLIST_CLEARED,
     PLAYLIST_REPEAT_PRESS,
     PLAYLIST_REPEAT_SET,
     PLAYLIST_REPEAT_UNSET,
+    WIN_PLAYER_STOPPED,
 };
 
 #endif

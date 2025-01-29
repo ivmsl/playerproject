@@ -4,10 +4,12 @@
 #include "playlist.h"
 #include "dirutils.h"
 #include "controls.h"
+#include "tt_window.h"
 //#include <SDL_filesystem.h>
 
 plist *playlist_str;
 playlist_entry playlist_array[MAX_PLAYLIST_ENTRIES]; //defined in playlist.h
+char isRepeat = 1;
 
 plist* get_playlist_handler(void) {
     if (playlist_str) {
@@ -18,8 +20,12 @@ plist* get_playlist_handler(void) {
 }
 
 int playlist_append(char* dirpath) {//, char* filepath) {
-    printf("Playlist_append: %s\n", dirpath);
+    //printf("Playlist_append: %s %i\n", dirpath, playlist_str->len);
 
+    if (!strstr(dirpath, ".mp3")) {
+        printf("Nie jest plikiem z rozszerzeniem.mp3: %s\n", dirpath);
+        return -1;
+    }
     if (playlist_str) {
         playlist_entry *playlist_added = &(playlist_array[playlist_str->len]);
 
@@ -33,8 +39,7 @@ int playlist_append(char* dirpath) {//, char* filepath) {
             playlist_added->folder[strlen(dirpath) - strlen(file_name)] = '\0';
         }
 
-        playlist_str->len++;
-        
+        playlist_str->len++;  
         return 0;   
     }
     else {
@@ -58,6 +63,21 @@ int initEmptyPlaylist(void) {
     playlist_str->len = 0;
     playlist_array[0].name = NULL;
     return 0;
+}
+
+void clearPlaylist(void) {
+    if (!playlist_str) return;
+
+    for (int i = 0; i < playlist_str->len; i++)
+    {
+        free(playlist_array[i].folder);
+        playlist_array[i].folder = NULL;
+        free(playlist_array[i].name);
+        playlist_array[i].name = NULL;
+    }
+    playlist_str->current = 0;
+    playlist_str->len = 0;
+
 }
 
 int playlist_from_dir(struct dir_content* dir_c) {
@@ -116,7 +136,20 @@ int playlist_from_dir(struct dir_content* dir_c) {
     }
     
     return 0;
+}
 
+void playlistStopMusic(void) {
+    Mix_Music *music;
+    if (getMusicHandler() != NULL) {
+        //printf("Freeing music...\n");
+        music = getMusicHandler();
+        Mix_HaltMusic();
+        Mix_FreeMusic(music);
+        gui->currentlyPlaying = NULL;
+    }
+    //printf("Music stopped.\n");
+    events = PLAYER_STOPPED;
+    return;
 }
 
 int select_track_from_playlist(int pos) {
@@ -126,6 +159,7 @@ int select_track_from_playlist(int pos) {
         music = getMusicHandler();
         Mix_HaltMusic();
         Mix_FreeMusic(music);
+        gui->currentlyPlaying = NULL;
         
         playlist_entry *cursw = &(playlist_str->playlist[pos]);
         
@@ -188,10 +222,29 @@ int playlist_prev(void) {
 
 
 int playlist_next(void) {
-    if (playlist_str->len == 0) return -1;
+    if (playlist_str->len == 0) {
+        playlistStopMusic();
+        return 0;
+        };
+    if (!isRepeat && (playlist_str->current + 1 >= playlist_str->len)) 
+    {
+        Mix_HaltMusic();
+        events = PLAYER_STOPPED;
+        return 0;
+    }
     int pos = (playlist_str->current + 1) % (playlist_str->len); 
     return select_track_from_playlist(pos);    
 }
+
+void toggleRepeat(void) {
+    (isRepeat) ? (isRepeat = 0) : (isRepeat = 1);
+    playlist_gui *pGUI = getpGUIHandler();
+    pGUI->isRepeat = isRepeat;
+    //printf("Repeat is now: %i\n", isRepeat);
+}
+
+
+
 
 void musicFinishedCallback(void) {
     events = NEED_NEXT_TRACK;

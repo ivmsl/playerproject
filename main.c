@@ -13,7 +13,6 @@
 
 #define WINDOW_WIDTH 725
 #define WINDOW_HEIGHT 200
-#define BTTNPATH "res/textures/buttons01.png"
 #define MP3PATH "res/test/1.mp3"
 
 enum windowEvents winEvents;
@@ -44,28 +43,47 @@ void eventLoop(SDL_Window *window, int* quit) {
                 break;
            
             case SDL_MOUSEBUTTONDOWN:
-                if (e.button.windowID == get_playlist_window_id()) continue;
-                Sint32 mouseX = e.button.x;
-                Sint32 mouseY = e.button.y;
-                //SDL_GetMouseState(&mouseX, &mouseY);
-                printf("MouseX: %d, MouseY: %d \n", mouseX, mouseY);
-                //struct GUI *gui = getGUIHandler();
-                if (checkAreaClick(mouseX, mouseY, &(gui->buttons.play.renderPos))) {
-                        playPauseAndSwitchButton();
+                
+                {
+                    Sint32 mouseX = e.button.x;
+                    Sint32 mouseY = e.button.y;
+                    //SDL_GetMouseState(&mouseX, &mouseY);
+                    if (e.button.windowID == get_playlist_window_id()) {
+                        playlist_gui *pGUI = getpGUIHandler();
+                        if (checkAreaClick(mouseX, mouseY, &(pGUI->clearButton.renderPos))) {
+                            winEvents = PLAYLIST_CLEAR_PRESS;
+                        }
+                        if (checkAreaClick(mouseX, mouseY, &(pGUI->repeatButton.renderPos))) {
+                            winEvents = PLAYLIST_REPEAT_PRESS;
+                        }
+                        continue;
+                    }
+                    
+                    //printf("MouseX: %d, MouseY: %d \n", mouseX, mouseY);
+                    //struct GUI *gui = getGUIHandler();
+                    if (checkAreaClick(mouseX, mouseY, &(gui->buttons.play.renderPos))) {
+                            playPauseAndSwitchButton();
+                    }
+                    if (checkAreaClick(mouseX, mouseY, &(gui->buttons.plst.renderPos))) {
+                            winEvents = CLICK_PLAYLIST_OPEN; //CHECK IF OPENED
+                        //   create_and_return_playlist_window(); //to events????????
+                    }
+                    if (checkAreaClick(mouseX, mouseY, &(gui->buttons.next.renderPos))) {
+                            events = NEED_NEXT_TRACK;
+                    }
+                    if (checkAreaClick(mouseX, mouseY, &(gui->buttons.prev.renderPos))) {
+                            events = NEED_PREV_TRACK;
+                    }
+                    if (checkAreaClick(mouseX, mouseY, &(gui->slider.slider))) {
+                            setSliderPos(mouseX);
+                    }
+                    if (checkAreaClick(mouseX, mouseY, &(gui->buttons.stop.renderPos))) {
+                            events = NEED_STOP;
+                    }
+                    if (checkAreaClick(mouseX, mouseY, &(gui->volume.slider))) {
+                            setVolumeSliderPos(mouseX);
+                    }
                 }
-                if (checkAreaClick(mouseX, mouseY, &(gui->buttons.plst.renderPos))) {
-                    winEvents = CLICK_PLAYLIST_OPEN; //CHECK IF OPENED
-                     //   create_and_return_playlist_window(); //to events????????
-                }
-                if (checkAreaClick(mouseX, mouseY, &(gui->buttons.next.renderPos))) {
-                        events = NEED_NEXT_TRACK;
-                }
-                if (checkAreaClick(mouseX, mouseY, &(gui->buttons.prev.renderPos))) {
-                        events = NEED_PREV_TRACK;
-                }
-                if (checkAreaClick(mouseX, mouseY, &(gui->slider.slider))) {
-                        setSliderPos(mouseX);
-                }          
                 break;
             case SDL_MOUSEWHEEL: 
                 if (e.wheel.windowID == get_playlist_window_id()) {
@@ -119,8 +137,11 @@ void doRender(wr_couple* mainRenderer) {
         //from controls.c!!!
         
         renderButtons(mainRenderer->window, mainRenderer->renderer);
-        if (events != NEED_NEXT_TRACK && events != CHANGING_TRACK) renderTitle(mainRenderer->window, mainRenderer->renderer);
+        if (events != NEED_NEXT_TRACK && events != CHANGING_TRACK) {
+            renderTitle(mainRenderer->window, mainRenderer->renderer);
+        }
         renderSlider(mainRenderer->window, mainRenderer->renderer);
+        renderVolumeSlider(mainRenderer->window, mainRenderer->renderer);
         // Update screen
         SDL_RenderPresent(mainRenderer->renderer);
 
@@ -208,48 +229,65 @@ int main(void) {
             //switch_states
         switch (events)
         {
-        case NEED_NEXT_TRACK:
-            events = CHANGING_TRACK;
-            //printf("Exit code next track: %i \n", playlist_next());
-            playlist_next();
+            case NEED_NEXT_TRACK:
+                events = CHANGING_TRACK;
+                //printf("Exit code next track: %i \n", playlist_next());
+                playlist_next();
 
-        break;
-
-        case NEED_PREV_TRACK:
-            events = CHANGING_TRACK;
-            //printf("Exit code next track: %i \n", playlist_next());
-            playlist_prev();
-
-        break;
-        default:
             break;
-    }    
+
+            case NEED_PREV_TRACK:
+                events = CHANGING_TRACK;
+                //printf("Exit code next track: %i \n", playlist_next());
+                playlist_prev();
+
+            break;
+            case NEED_STOP:
+                playlistStopMusic();
+            break;
+            case PLAYER_STOPPED:
+                printf("Player stopped\n");
+                playPauseAndSwitchButton();
+                events = NOOP;
+                break;
+            default:
+                break;
+        }    
 
         switch (winEvents)
         {
-        case CLICK_PLAYLIST_OPEN:
-            {   
-                printf("Playlist opened\n");
-                if (!windowsManager.playlistWindow) windowsManager.playlistWindow = createAndReturnPlaylistWindow();
-                winEvents = PLAYLIST_OPENED;
-            }
-            break;
-        case PLAYLIST_OPENED:
-            if (windowsManager.playlistWindow) SDL_RaiseWindow(windowsManager.playlistWindow->window);
-            winEvents = WIN_IDLE;
-            break;
-        case CLICK_PLAYLIST_CLOSE:
-            printf("Playlist_Closed\n");
-            if (windowsManager.playlistWindow) {
-                destroyPlaylistWindow();
-                SDL_RaiseWindow(windowsManager.mainWindow.window);
-                windowsManager.playlistWindow = NULL;
+            case CLICK_PLAYLIST_OPEN:
+                {   
+                    printf("Playlist opened\n");
+                    if (!windowsManager.playlistWindow) windowsManager.playlistWindow = createAndReturnPlaylistWindow();
+                    winEvents = PLAYLIST_OPENED;
+                }
+                break;
+            case PLAYLIST_OPENED:
+                if (windowsManager.playlistWindow) SDL_RaiseWindow(windowsManager.playlistWindow->window);
                 winEvents = WIN_IDLE;
-            }
-            break;
-        
-        default:
-            break;
+                break;
+            case CLICK_PLAYLIST_CLOSE:
+                printf("Playlist_Closed\n");
+                if (windowsManager.playlistWindow) {
+                    destroyPlaylistWindow();
+                    SDL_RaiseWindow(windowsManager.mainWindow.window);
+                    windowsManager.playlistWindow = NULL;
+                    winEvents = WIN_IDLE;
+                }
+                break;
+            
+            case PLAYLIST_CLEAR_PRESS:
+                clearPlaylistBlocks();
+                clearPlaylist();
+                winEvents = WIN_IDLE;
+                break;
+            case PLAYLIST_REPEAT_PRESS:
+                toggleRepeat();
+                winEvents = WIN_IDLE;
+                break;
+            default:
+                break;
         }
 
             SDL_Delay(10);

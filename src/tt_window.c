@@ -24,6 +24,10 @@ int playlist_len = 0;
 int START_Y_COORD = 0; //dla scrollingu 
 playlist_gui pGUI;
 
+playlist_gui *getpGUIHandler(void) {
+    return &pGUI;
+}
+
 
 void *render_playlist_if_present(void) {
     if (!playlistWindow) return NULL;
@@ -40,8 +44,18 @@ void *render_playlist_if_present(void) {
         SDL_RenderCopy(playlistWindow->renderer, playl_brick[counter].title, NULL, &(playl_brick[counter].titlePos));
     }
    
+
    SDL_SetRenderDrawColor(playlistWindow->renderer, 183, 45, 45, 100);
    SDL_RenderDrawRect(playlistWindow->renderer, &(pGUI.guiPos));
+
+   if (pGUI.atlas) {
+        SDL_RenderCopy(playlistWindow->renderer, pGUI.atlas, &(pGUI.clearButton.texPos), &(pGUI.clearButton.renderPos));
+        if (!pGUI.isRepeat) { 
+            SDL_RenderCopy(playlistWindow->renderer, pGUI.atlas, &(pGUI.repeatButton.texPos), &(pGUI.repeatButton.renderPos)); 
+            } else { 
+            SDL_RenderCopy(playlistWindow->renderer, pGUI.atlas, &(pGUI.repeatButtonOn.texPos), &(pGUI.repeatButtonOn.renderPos));  
+        }     
+   }
    SDL_RenderDrawRect(playlistWindow->renderer, &(pGUI.clearButton.renderPos));
    SDL_RenderDrawRect(playlistWindow->renderer, &(pGUI.repeatButton.renderPos));  
 }
@@ -80,7 +94,7 @@ void populate_playlist(void) {
     TTF_CloseFont(font);
 }
 
-void clear_playlist_blocks(void) {
+void clearPlaylistBlocks(void) {
 
     int count = playlist_len;
     for (int i = 0; i < count; i++)
@@ -97,11 +111,11 @@ void updatePlaylistBlocks(void) {
     if (!playlistWindow) return;
     plist *playlist = get_playlist_handler();
     if (!playlist) return;
+    //printf("New songs added to playlist %i %i \n", playlist->len, playlist_len);
     if (playlist->len > playlist_len) {
-        printf("New songs added to playlist %i %i \n", playlist->len, playlist_len);
         for (int i = playlist_len; i < playlist->len; i++) {
             TTF_Font *font = TTF_OpenFont(FONTPATH, 18);
-            printf("Playlist: %s\n", playlist->playlist[i].name);
+            //printf("Playlist: %s\n", playlist->playlist[i].name);
             playl_brick[i].title = getTextureFromWords(playlistWindow->renderer, font, playlist->playlist[i].name);
         if (!playl_brick[i].title) return;
         int tempW, tempH;
@@ -122,9 +136,14 @@ int initPlaylistInfoBlock(void) {
     int tempW, tempH;
     SDL_GetWindowSize(playlistWindow->window, &tempW, &tempH);
 
-    pGUI.atlas = NULL;
+    pGUI.atlas = (SDL_Texture*) loadTexture(playlistWindow->renderer, BUTTONS_PLAYLIST_TEX);
+    if (!pGUI.atlas) {
+        perror("Cannot load texture atlas.\n");
+    }
+    pGUI.isRepeat = 1;
+    
     pGUI.playlist_len = playlist_len;
-    printf("Window size: %d, %d\n", tempW, tempH);
+    //printf("Window size: %d, %d\n", tempW, tempH);
     pGUI.guiPos = (struct SDL_Rect) {0, tempH - 50, 300, 50};
 
 
@@ -134,11 +153,19 @@ int initPlaylistInfoBlock(void) {
                                     40, 
                                     40};
 
+    pGUI.repeatButton.texPos = (struct SDL_Rect) {0, 0, 150, 128};                                
+
+    pGUI.repeatButtonOn = pGUI.repeatButton;
+    pGUI.repeatButtonOn.texPos = (struct SDL_Rect) {0, 128, 150, 128};                                
+    
     pGUI.clearButton.renderPos = (struct SDL_Rect) {
                                     pGUI.guiPos.w - 60, 
                                     pGUI.guiPos.y + 5, 
                                     40, 
                                     40};
+
+    pGUI.clearButton.texPos = (struct SDL_Rect) {150, 0, 150, 128};   
+    
     return 0;
 }
 
@@ -166,12 +193,15 @@ wr_couple* createAndReturnPlaylistWindow(void) {
 }
 
 int destroyPlaylistWindow(void) {
-    clear_playlist_blocks();
+    clearPlaylistBlocks();
     if (playlistWindow) {
         //printf("DESTROOOOY \n");
         if (playlistWindow->renderer) SDL_DestroyRenderer(playlistWindow->renderer);
         if (playlistWindow->window) SDL_DestroyWindow(playlistWindow->window);
         playlistWindow = NULL; //nullPtr
     }
+    if (pGUI.atlas) SDL_DestroyTexture(pGUI.atlas);
+    pGUI.atlas = NULL;
+    pGUI.playlist_len = 0;
     return 0;
 }

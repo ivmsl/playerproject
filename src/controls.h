@@ -21,6 +21,7 @@ typedef struct slider_info {
     double position; //Mix_GetMusicPosition(Mix_Music* music)
     struct SDL_Rect slider_bar;
     struct SDL_Rect slider;
+    struct SDL_Rect texturePos;
 } slider_info_t;
 
 ///
@@ -36,6 +37,7 @@ enum playerEvent {
     PLAYER_PAUSED,
     NEED_RESUME,
     UPDATING_PLAYLIST,
+    NEED_STOP,
     PLAYER_STOPPED,
 };
 
@@ -69,6 +71,7 @@ struct RAW_SOURCES {
 
 struct GUI {
     slider_info_t slider;
+    slider_info_t volume;
     title_t title;
     texControls_t buttons;
     Mix_Music *currentlyPlaying;
@@ -83,9 +86,12 @@ extern void playPauseAndSwitchButton(void);
 extern int deinitGUI(void);
 extern struct GUI* getGUIHandler(void);
 extern struct GUI *gui;
+extern struct RAW_SOURCES *raw_res;
 extern Mix_Music* getMusicHandler(void);
 enum playerEvent events;
-void updateCurrentMusic(Mix_Music *music);
-void setSliderPos(int x);
+extern void updateCurrentMusic(Mix_Music *music);
+extern void setSliderPos(int x);
+extern void renderVolumeSlider(SDL_Window *window, SDL_Renderer *renderer);
+extern void setVolumeSliderPos(int x);
 
 #endif

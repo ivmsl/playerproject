@@ -48,7 +48,7 @@ void updateCurrentMusic(Mix_Music *music) {
 
 int initGUI(SDL_Renderer *renderer, const char *font_path, const char *atl_path) {
 
-    printf("Create Alloc");
+    //printf("Create Alloc");
     gui = (struct GUI*) calloc(1, sizeof(struct GUI));
     if (!gui) {
         perror("Cannot allocate for gui. Program halted \n");
@@ -56,15 +56,18 @@ int initGUI(SDL_Renderer *renderer, const char *font_path, const char *atl_path)
     }
     gui->currentlyPlaying = NULL;
 
-    printf("CREATED ALLOC");
+    //printf("CREATED ALLOC");
     
     gui->buttons.play.texPos = (struct SDL_Rect) {0, 0, 150, 128};  // x, y, width, height in the texture atlas
     gui->buttons.pause.texPos = (struct SDL_Rect) {150, 0, 150, 128};
     gui->buttons.prev.texPos = (struct SDL_Rect) {300, 0, 150, 128};
     gui->buttons.stop.texPos = (struct SDL_Rect) {450, 0, 150, 128};
     gui->buttons.next.texPos = (struct SDL_Rect) {600, 0, 150, 128};
+    gui->buttons.plst.texPos = (struct SDL_Rect) {300, 128, 150, 128};
     gui->buttons.ctrlAct = PLAY_DISPL;
-    gui->slider = (slider_info_t) {0, 0, NULL, NULL};
+    gui->slider = (slider_info_t) {0, 0, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
+    gui->volume = (slider_info_t) {128, MIX_MAX_VOLUME, {0, 0, 15, SMALL_BUTTN_DEF}, {0, 0, 128, SMALL_BUTTN_DEF}};
+    gui->volume.texturePos = (struct SDL_Rect) {0, 128, 300, 128};
     gui->title = (title_t) {NULL, NULL};
 
     raw_res = (struct RAW_SOURCES*) calloc(1, sizeof(struct RAW_SOURCES));
@@ -105,8 +108,12 @@ int deinitGUI(void) {
 
 
 void playPauseAndSwitchButton() {
+    if (events == PLAYER_STOPPED) {
+        gui->buttons.ctrlAct = PLAY_DISPL;
+        return;
+    }
     if (!gui->currentlyPlaying) {
-        printf("Next_track \n");
+        //printf("Next_track \n");
         events = NEED_NEXT_TRACK;
         return;
     }
@@ -182,9 +189,12 @@ void renderButtons(SDL_Window *window, SDL_Renderer *renderer) {
         SDL_RenderCopy(renderer, raw_res->atlas, &ctrs->next.texPos, &ctrs->next.renderPos);
 
         ctrs->plst.renderPos = (struct SDL_Rect) {gui->slider.slider.x + gui->slider.slider.w - small_button, y_small, small_button, small_button};
-
+        SDL_RenderCopy(renderer, raw_res->atlas, &ctrs->plst.texPos, &ctrs->plst.renderPos);
 
         SDL_SetRenderDrawColor(renderer, 183, 45, 45, 100);
+        SDL_RenderDrawRect(renderer, &(ctrs->prev.renderPos));
+        SDL_RenderDrawRect(renderer, &(ctrs->stop.renderPos));
+        SDL_RenderDrawRect(renderer, &(ctrs->next.renderPos));
         SDL_RenderDrawRect(renderer, &(ctrs->play.renderPos)); 
         SDL_RenderDrawRect(renderer, &(ctrs->plst.renderPos)); 
 }
@@ -260,11 +270,43 @@ void renderSlider(SDL_Window *window, SDL_Renderer *renderer) {
         SDL_RenderDrawRect(renderer, &(slider->slider_bar)); 
 }
 
+void renderVolumeSlider(SDL_Window *window, SDL_Renderer *renderer) {
+    int windowWidth, windowHeight;
+    SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+    slider_info_t *slider = &(gui->volume);
+
+    slider->slider.y = gui->buttons.prev.renderPos.y;
+    slider->slider.x = gui->buttons.plst.renderPos.x - SMALL_GAP - slider->slider.w;
+    gui->volume.slider_bar.y = gui->volume.slider.y;
+    int x = gui->volume.position;
+    gui->volume.slider_bar.x = gui->volume.slider.x + x - 16;
+    if (gui->volume.slider_bar.x < gui->volume.slider.x) gui->volume.slider_bar.x = gui->volume.slider.x;
+   // slider->slider.w = 80;
+   // slider->slider.h = SMALL_BUTTN_DEF;
+
+    //int xs_cord = (int) (((slider->position * 100) / slider->duration / 100) * (slider->slider.w - 16) + slider->slider.x);
+    SDL_RenderCopy(renderer, raw_res->atlas, &(slider->texturePos), &(slider->slider));
+    SDL_SetRenderDrawColor(renderer, 183, 45, 45, 100);
+    //SDL_RenderDrawRect(renderer, &(slider->slider));
+    SDL_RenderDrawRect(renderer, &(slider->slider_bar));  
+
+}
+
+void setVolumeSliderPos(int x) {
+    
+    //gui->volume.slider_bar.x = x - 16;
+    //printf("New volume: %i \n", (x - gui->volume.slider.x));
+    if (x - gui->volume.slider.x - 15 <= 0) gui->volume.position = 0;
+    else gui->volume.position = (Uint8) (x - gui->volume.slider.x);
+    Mix_VolumeMusic(gui->volume.position);
+    
+}
+
 void setSliderPos(int x) {
         if (gui->currentlyPlaying) {
             double proc =  ((1.0 * (x - gui->slider.slider.x)) / gui->slider.slider.w); 
             //(100 * (x - gui->slider.slider.x)) / (double) ((gui->slider.slider.w) + gui->slider.slider.x) / 100; 
-            printf("Procent: %lf X: %i Length: %i Xs: %i \n", proc, x, (gui->slider.slider.w), x - gui->slider.slider.x);
+            //printf("Procent: %lf X: %i Length: %i Xs: %i \n", proc, x, (gui->slider.slider.w), x - gui->slider.slider.x);
             Mix_SetMusicPosition(gui->slider.duration * proc);
         }
     

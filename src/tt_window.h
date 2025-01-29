@@ -7,6 +7,8 @@
 #ifndef tt_window_h_
 #define tt_window_h_
 
+#define BUTTONS_PLAYLIST_TEX "res/textures/buttons_playlist.png"
+
 typedef struct playlist_block {
     playlist_entry *entry;
     struct SDL_Rect renderPos;
@@ -17,9 +19,11 @@ typedef struct playlist_block {
 typedef struct playlist_info {
     unitControlRender_t clearButton;
     unitControlRender_t repeatButton;
+    unitControlRender_t repeatButtonOn;
     struct SDL_Rect guiPos; 
     uint playlist_len;
     struct SDL_Texture *atlas;
+    char isRepeat;
 } playlist_gui;
 
 
@@ -29,5 +33,7 @@ extern int destroyPlaylistWindow(void);
 extern wr_couple* createAndReturnPlaylistWindow(void);
 extern wr_couple *GetPlaylistRenderer(void);
 void changeXCoordScrolling(Sint32 scroll);
+void clearPlaylistBlocks(void);
+playlist_gui *getpGUIHandler(void);
 
 #endif
