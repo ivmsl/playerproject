@@ -187,14 +187,16 @@ int main(void) {
 
     //Mix_Music *music = Mix_LoadMUS(MP3PATH);
 
-    struct dir_content *dir_c = open_directory("./res/test");
-    printf("Len: %i, Path: %s\n", dir_c->len, dir_c->path);
-    printf("Exit code: %i\n", playlist_from_dir(dir_c));
+    //struct dir_content *dir_c = open_directory("./res/test");
+    //printf("Len: %i, Path: %s\n", dir_c->len, dir_c->path);
+    //printf("Exit code: %i\n", playlist_from_dir(dir_c));
+    initEmptyPlaylist();
     plist *playlist = get_playlist_handler();
-    if (playlist) printf("Name [2]: %s \n", playlist->playlist[2].name);
+    //if (playlist) printf("Name [2]: %s \n", playlist->playlist[2].name);
 
     registerHaltCallback();
-
+    printf("Callbacks registered\n");
+    winEvents = WIN_IDLE;
     // Main loop
     while (!quit) {
         
@@ -203,9 +205,6 @@ int main(void) {
 
         // Clear screen
         doRender(&(windowsManager.mainWindow));
-
-
-
             //switch_states
         switch (events)
         {
@@ -262,7 +261,7 @@ int main(void) {
     destroyPlaylistWindow();
 
     //custom free-dir
-    free_dir_content(dir_c);
+    //free_dir_content(dir_c);
     deinitGUI();
 
     // Quit SDL subsystems

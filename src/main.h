@@ -31,4 +31,13 @@ enum windowEvents {
 };
 
 
+enum playlistEvents {
+    PLAYLIST_IDLE,
+    PLAYLIST_CLEAR_PRESS,
+    PLAYLIST_CLEARED,
+    PLAYLIST_REPEAT_PRESS,
+    PLAYLIST_REPEAT_SET,
+    PLAYLIST_REPEAT_UNSET,
+};
+
 #endif

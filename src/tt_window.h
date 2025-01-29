@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "main.h"
 #include "playlist.h"
+#include "controls.h"
 
 #ifndef tt_window_h_
 #define tt_window_h_
@@ -13,9 +14,12 @@ typedef struct playlist_block {
     struct SDL_Rect titlePos;
 } playlist_block;
 
-typedef struct playlist_line {
-    playlist_block *block;
+typedef struct playlist_info {
+    unitControlRender_t clearButton;
+    unitControlRender_t repeatButton;
+    struct SDL_Rect guiPos; 
     uint playlist_len;
+    struct SDL_Texture *atlas;
 } playlist_gui;
 
 

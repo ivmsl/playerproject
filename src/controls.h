@@ -1,6 +1,8 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
+#include <SDL_mixer.h>
+
 
 #ifndef controls_h_
 #define controls_h_

@@ -1,10 +1,12 @@
 #include <SDL.h>
-#include "main.h"
 #include <stdio.h>
+#include <SDL_ttf.h>
+#include "main.h"
 #include "playlist.h"
 #include "tt_window.h"
 #include "plutils.h"
-#include <SDL_ttf.h>
+#include "controls.h"
+
 
 /*******************************
 * Plik odpowiedzialny do tworzenia i destrukcje okna playlisty.
@@ -19,7 +21,9 @@
 wr_couple *playlistWindow = NULL; //handler dla okna i renderera
 playlist_block playl_brick[MAX_PLAYLIST_ENTRIES]; //bloki playlistu, MAX_PL_EN defined in playlist.h
 int playlist_len = 0;
-int START_Y_COORD = 0; //dla scrollingu
+int START_Y_COORD = 0; //dla scrollingu 
+playlist_gui pGUI;
+
 
 void *render_playlist_if_present(void) {
     if (!playlistWindow) return NULL;
@@ -35,6 +39,11 @@ void *render_playlist_if_present(void) {
         playl_brick[counter].titlePos.y = START_Y_COORD + 5 + counter*50;  
         SDL_RenderCopy(playlistWindow->renderer, playl_brick[counter].title, NULL, &(playl_brick[counter].titlePos));
     }
+   
+   SDL_SetRenderDrawColor(playlistWindow->renderer, 183, 45, 45, 100);
+   SDL_RenderDrawRect(playlistWindow->renderer, &(pGUI.guiPos));
+   SDL_RenderDrawRect(playlistWindow->renderer, &(pGUI.clearButton.renderPos));
+   SDL_RenderDrawRect(playlistWindow->renderer, &(pGUI.repeatButton.renderPos));  
 }
 
 void changeXCoordScrolling(Sint32 scroll) {
@@ -72,16 +81,15 @@ void populate_playlist(void) {
 }
 
 void clear_playlist_blocks(void) {
-    plist *playlist = get_playlist_handler();
-    if (!playlist) return;
 
-    int count = playlist->len;
+    int count = playlist_len;
     for (int i = 0; i < count; i++)
     {
         if (playl_brick[i].title) SDL_DestroyTexture(playl_brick[i].title);
         playl_brick[i].title = NULL;
+        playl_brick[i].entry = NULL;
     }
-    
+    playlist_len = 0;
 }
 
 
@@ -109,6 +117,31 @@ Uint32 get_playlist_window_id(void) {
     if (playlistWindow->window) return SDL_GetWindowID(playlistWindow->window);
 }
 
+int initPlaylistInfoBlock(void) {
+    if (!playlistWindow) return -1;
+    int tempW, tempH;
+    SDL_GetWindowSize(playlistWindow->window, &tempW, &tempH);
+
+    pGUI.atlas = NULL;
+    pGUI.playlist_len = playlist_len;
+    printf("Window size: %d, %d\n", tempW, tempH);
+    pGUI.guiPos = (struct SDL_Rect) {0, tempH - 50, 300, 50};
+
+
+    pGUI.repeatButton.renderPos = (struct SDL_Rect) {
+                                    pGUI.guiPos.x + 20, 
+                                    pGUI.guiPos.y + 5, 
+                                    40, 
+                                    40};
+
+    pGUI.clearButton.renderPos = (struct SDL_Rect) {
+                                    pGUI.guiPos.w - 60, 
+                                    pGUI.guiPos.y + 5, 
+                                    40, 
+                                    40};
+    return 0;
+}
+
 wr_couple* createAndReturnPlaylistWindow(void) {
     playlistWindow = calloc(1, sizeof(wr_couple));
     playlistWindow->window = SDL_CreateWindow("Playlist",
@@ -127,6 +160,7 @@ wr_couple* createAndReturnPlaylistWindow(void) {
         return 1;
     }    
     populate_playlist();
+    initPlaylistInfoBlock();
     return playlistWindow;
 
 }

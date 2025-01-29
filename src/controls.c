@@ -200,6 +200,7 @@ void renderTitle(SDL_Window *window, SDL_Renderer *renderer) {
 
         if (!gui->title.title) {
             const char* title = GetCurrTrackName(); 
+            if (!title) return;
             if (strcmp(title, "") > 0) {
                 gui->title.title = getTextureFromWords(renderer, raw_res->font, title);
               

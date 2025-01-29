@@ -45,6 +45,21 @@ int playlist_append(char* dirpath) {//, char* filepath) {
     return 0;
 }
 
+int initEmptyPlaylist(void) {
+    if (!playlist_str) {
+        playlist_str = (plist*) calloc(1, sizeof(plist));
+        if (!playlist_str) {
+            return -1;
+            perror("Unable to allocate playlist_str");
+        }
+    }
+
+    playlist_str->playlist = playlist_array;
+    playlist_str->len = 0;
+    playlist_array[0].name = NULL;
+    return 0;
+}
+
 int playlist_from_dir(struct dir_content* dir_c) {
 
     if (!dir_c) {
@@ -74,6 +89,7 @@ int playlist_from_dir(struct dir_content* dir_c) {
     
     playlist_str->playlist = playlist_array;
     playlist_str->len = 0;
+    playlist_str->current = 0;
 
     dir_ent *mp3_ent = dir_c->first;
     playlist_entry *entry = playlist_array; //if we use playlist on the heap — use that
@@ -164,6 +180,7 @@ int select_track_from_playlist(int pos) {
 }
 
 int playlist_prev(void) {
+    if (playlist_str->len == 0) return -1;
     int pos = (playlist_str->current - 1) % (playlist_str->len); 
     if (pos < 0) pos = playlist_str->len - 1;
     return select_track_from_playlist(pos);    
@@ -171,6 +188,7 @@ int playlist_prev(void) {
 
 
 int playlist_next(void) {
+    if (playlist_str->len == 0) return -1;
     int pos = (playlist_str->current + 1) % (playlist_str->len); 
     return select_track_from_playlist(pos);    
 }

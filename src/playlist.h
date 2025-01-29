@@ -23,6 +23,7 @@ extern int playlist_prev(void);
 extern void registerHaltCallback(void);
 char *GetCurrTrackName(void); 
 void updatePlaylistBlocks(void);
+int initEmptyPlaylist(void);
 
 int playlist_append(char* dirpath); 
 
