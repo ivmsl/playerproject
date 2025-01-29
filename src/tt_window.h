@@ -6,7 +6,6 @@
 #ifndef tt_window_h_
 #define tt_window_h_
 
-
 typedef struct playlist_block {
     playlist_entry *entry;
     struct SDL_Rect renderPos;
@@ -17,15 +16,13 @@ typedef struct playlist_block {
 typedef struct playlist_line {
     playlist_block *block;
     uint playlist_len;
-
 } playlist_gui;
 
 
-
-extern void *render_playlist_if_present();
-extern Uint32 get_playlist_window_id();
-extern int destroy_playlist_window();
-extern wr_couple* create_and_return_playlist_window();
-extern wr_couple *GetPlaylistRenderer();
+extern void *render_playlist_if_present(void);
+extern Uint32 get_playlist_window_id(void);
+extern int destroyPlaylistWindow(void);
+extern wr_couple* createAndReturnPlaylistWindow(void);
+extern wr_couple *GetPlaylistRenderer(void);
 
 #endif

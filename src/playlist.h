@@ -3,9 +3,11 @@
 
 #include "dirutils.h"
 
+#define MAX_PLAYLIST_ENTRIES 255
+
 typedef struct playlist_entry {
-    char* folder;
-    char* name;
+    char* folder; //**< String containing folder path*/
+    char* name; //**< String containing filename*/
 } playlist_entry;
 
 typedef struct plist {

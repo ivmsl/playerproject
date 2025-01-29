@@ -8,7 +8,6 @@
     
 #else
     extern struct dir_content* open_directory(const char *path);
-    extern char* get_curr_dir(void);
     extern void free_dir_content(struct dir_content *dir_c);
 #endif
 

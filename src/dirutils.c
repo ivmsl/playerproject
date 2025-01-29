@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <limits.h>
 
-struct dir_content *dir_c = NULL;
+//struct dir_content *dir_c = NULL;
 
 void free_dir_content(struct dir_content *dir_con) {
         free(dir_con->path);
@@ -21,17 +21,6 @@ void free_dir_content(struct dir_content *dir_con) {
         //free(dir_c->first);
         free(dir_con);
 }
-
-    
-char* get_curr_dir(void) {
-        if (dir_c) {
-            return dir_c->path;
-        }
-        else {
-            return NULL;
-        }
-}
-
 
 #ifdef _WIN32
     #include <windows.h>
@@ -59,7 +48,7 @@ char* get_curr_dir(void) {
             return -1;
         }
 
-        dir_c = (struct dir_content*) calloc(1, sizeof(struct dir_content));
+        struct dir_content *dir_c = (struct dir_content*) calloc(1, sizeof(struct dir_content));
         if (!dir_c) {
             perror("Unable to allocate for dir_c");
             return -1;
@@ -112,7 +101,6 @@ char* get_curr_dir(void) {
 
         closedir(dir);
         return dir_c;
-
     }
 
 

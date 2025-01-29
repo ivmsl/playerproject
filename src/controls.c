@@ -106,7 +106,7 @@ int deinitGUI(void) {
 
 void playPauseAndSwitchButton() {
     if (!gui->currentlyPlaying) {
-        printf("No chance \n");
+        printf("Next_track \n");
         events = NEED_NEXT_TRACK;
         return;
     }

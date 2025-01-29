@@ -6,13 +6,20 @@
 #include "plutils.h"
 #include <SDL_ttf.h>
 
+/*******************************
+* Plik odpowiedzialny do tworzenia i destrukcje okna playlisty.
+* Wyświetla listę utworów playlisty i obsługuje naciśnięcia myszy.
+*/
+
 //https://github.com/libsdl-org/SDL/blob/SDL2/include/SDL_events.h#L315
 //https://lazyfoo.net/tutorials/SDL/35_window_events/index.php 
 
-wr_couple *playlistWindow = NULL;
-playlist_block playl_brick[256];
 
-void *render_playlist_if_present() {
+
+wr_couple *playlistWindow = NULL; //handler dla okna i renderera
+playlist_block playl_brick[MAX_PLAYLIST_ENTRIES]; //bloki playlistu, MAX_PL_EN defined in playlist.h
+
+void *render_playlist_if_present(void) {
     if (!playlistWindow) return NULL;
     
     plist *playlist = get_playlist_handler();
@@ -27,15 +34,15 @@ void *render_playlist_if_present() {
     }
 }
 
-wr_couple *GetPlaylistRenderer() {
+wr_couple *GetPlaylistRenderer(void) {
     if (playlistWindow) return playlistWindow;
     else return NULL;
 }
 
-void populate_playlist() {
+void populate_playlist(void) {
     plist *playlist = get_playlist_handler();
 
-    TTF_Font *font = TTF_OpenFont(FONTPATH, 20);
+    TTF_Font *font = TTF_OpenFont(FONTPATH, 18);
     if (!font) {
         printf("Cannot open the font %s", TTF_GetError());
     }
@@ -52,16 +59,16 @@ void populate_playlist() {
     }
 }
 
-void check_events() {
+void check_events(void) {
 
 }
 
-Uint32 get_playlist_window_id() {
+Uint32 get_playlist_window_id(void) {
     if (!playlistWindow) return 0;
     if (playlistWindow->window) return SDL_GetWindowID(playlistWindow->window);
 }
 
-wr_couple* create_and_return_playlist_window() {
+wr_couple* createAndReturnPlaylistWindow(void) {
     playlistWindow = calloc(1, sizeof(wr_couple));
     playlistWindow->window = SDL_CreateWindow("Playlist",
                               SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
@@ -77,20 +84,18 @@ wr_couple* create_and_return_playlist_window() {
     if (playlistWindow->renderer == NULL) {
         printf("Renderer could not be created! SDL_Error: %s\n", SDL_GetError());
         return 1;
-    }
-
-    
+    }    
     populate_playlist();
-
     return playlistWindow;
 
 }
 
-int destroy_playlist_window() {
+int destroyPlaylistWindow(void) {
     if (playlistWindow) {
         //printf("DESTROOOOY \n");
         if (playlistWindow->renderer) SDL_DestroyRenderer(playlistWindow->renderer);
         if (playlistWindow->window) SDL_DestroyWindow(playlistWindow->window);
+        playlistWindow = NULL; //nullPtr
     }
     return 0;
 }

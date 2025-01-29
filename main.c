@@ -9,17 +9,19 @@
 #include "src/dirutils.h"
 #include "src/main.h"
 #include "src/tt_window.h"
+#include "src/dirwindow.h"
 
 #define WINDOW_WIDTH 725
 #define WINDOW_HEIGHT 200
 #define BTTNPATH "res/textures/buttons01.png"
 #define MP3PATH "res/test/1.mp3"
 
+enum windowEvents winEvents;
 
 void eventLoop(SDL_Window *window, int* quit) {
     // Event handler
     SDL_Event e;
-    int mouseX, mouseY;
+    //int mouseX, mouseY;
     
     while (SDL_PollEvent(&e) != 0) {            
         // User requests quit
@@ -50,7 +52,8 @@ void eventLoop(SDL_Window *window, int* quit) {
                         playPauseAndSwitchButton();
                 }
                 if (checkAreaClick(mouseX, mouseY, &(gui->buttons.plst.renderPos))) {
-                        create_and_return_playlist_window();
+                    winEvents = CLICK_PLAYLIST_OPEN; //CHECK IF OPENED
+                     //   create_and_return_playlist_window(); //to events????????
                 }
                 if (checkAreaClick(mouseX, mouseY, &(gui->buttons.next.renderPos))) {
                         events = NEED_NEXT_TRACK;
@@ -67,9 +70,9 @@ void eventLoop(SDL_Window *window, int* quit) {
                     if (e.window.event == SDL_WINDOWEVENT_CLOSE) {
                         //printf("Windowevent_close\n");
                         
-                        if (e.window.windowID == get_playlist_window_id()) destroy_playlist_window();
+                        if (e.window.windowID == get_playlist_window_id()) winEvents = CLICK_PLAYLIST_CLOSE;
                         else {
-                            destroy_playlist_window();
+                            destroyPlaylistWindow();
                             *quit = 1;
                         }
                     }
@@ -111,10 +114,8 @@ void doRender(wr_couple* mainRenderer) {
 
 int main(void) {
 
-    wr_couple mainRenderer;
-    mainRenderer.window = NULL;
-    mainRenderer.renderer = NULL;
-
+    struct winManager windowsManager = (struct winManager) {(wr_couple) {NULL, NULL, -1}, NULL, NULL, NULL};
+    
     // Main loop flag  
     int quit = 0;
     
@@ -138,24 +139,26 @@ int main(void) {
     }
 
     // Create window (WINDOW POINTER!!)
-    mainRenderer.window = SDL_CreateWindow("Simple music player",
+    windowsManager.mainWindow.window = SDL_CreateWindow("Simple music player",
                               SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                               WINDOW_WIDTH, WINDOW_HEIGHT,
                               SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
-    if (mainRenderer.window == NULL) {
+    if (windowsManager.mainWindow.window == NULL) {
         printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
         return 1;
     }
 
     // Create renderer (RENDERER POINTER!!)
-    mainRenderer.renderer = SDL_CreateRenderer(mainRenderer.window, -1, SDL_RENDERER_ACCELERATED);
-    if (mainRenderer.renderer == NULL) {
+    windowsManager.mainWindow.renderer = SDL_CreateRenderer(windowsManager.mainWindow.window, -1, SDL_RENDERER_ACCELERATED);
+    if (windowsManager.mainWindow.renderer == NULL) {
         printf("Renderer could not be created! SDL_Error: %s\n", SDL_GetError());
         return 1;
     }
 
+    windowsManager.mainWindow.windowID = SDL_GetWindowID(windowsManager.mainWindow.window);
+
     printf("\nINIT GUI\n");
-    if (initGUI(mainRenderer.renderer, FONTPATH, BTTNPATH) != 0) {
+    if (initGUI(windowsManager.mainWindow.renderer, FONTPATH, BTTNPATH) != 0) {
         perror("Gui can't be loaded");
         quit = 1;
     }
@@ -163,7 +166,7 @@ int main(void) {
     //Mix_Music *music = Mix_LoadMUS(MP3PATH);
 
     struct dir_content *dir_c = open_directory("./res/test");
-    printf("Current dir: %s, Len: %i, Path: %s\n", get_curr_dir(), dir_c->len, dir_c->path);
+    printf("Len: %i, Path: %s\n", dir_c->len, dir_c->path);
     printf("Exit code: %i\n", playlist_from_dir(dir_c));
     plist *playlist = get_playlist_handler();
     if (playlist) printf("Name [2]: %s \n", playlist->playlist[2].name);
@@ -174,10 +177,10 @@ int main(void) {
     while (!quit) {
         
         //Check events
-        eventLoop(mainRenderer.window, &quit);
+        eventLoop(windowsManager.mainWindow.window, &quit);
 
         // Clear screen
-        doRender(&mainRenderer);
+        doRender(&(windowsManager.mainWindow));
 
 
 
@@ -201,13 +204,40 @@ int main(void) {
             break;
     }    
 
-        SDL_Delay(10);
+        switch (winEvents)
+        {
+        case CLICK_PLAYLIST_OPEN:
+            {   
+                printf("Playlist opened\n");
+                if (!windowsManager.playlistWindow) windowsManager.playlistWindow = createAndReturnPlaylistWindow();
+                winEvents = PLAYLIST_OPENED;
+            }
+            break;
+        case PLAYLIST_OPENED:
+            if (windowsManager.playlistWindow) SDL_RaiseWindow(windowsManager.playlistWindow->window);
+            winEvents = WIN_IDLE;
+            break;
+        case CLICK_PLAYLIST_CLOSE:
+            printf("Playlist_Closed\n");
+            if (windowsManager.playlistWindow) {
+                destroyPlaylistWindow();
+                SDL_RaiseWindow(windowsManager.mainWindow.window);
+                windowsManager.playlistWindow = NULL;
+                winEvents = WIN_IDLE;
+            }
+            break;
+        
+        default:
+            break;
+        }
+
+            SDL_Delay(10);
     }
 
     // Destroy window
-    SDL_DestroyRenderer(mainRenderer.renderer);
-    SDL_DestroyWindow(mainRenderer.window);
-    destroy_playlist_window();
+    SDL_DestroyRenderer(windowsManager.mainWindow.renderer);
+    SDL_DestroyWindow(windowsManager.mainWindow.window);
+    destroyPlaylistWindow();
 
     //custom free-dir
     free_dir_content(dir_c);

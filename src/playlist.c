@@ -7,7 +7,7 @@
 //#include <SDL_filesystem.h>
 
 plist *playlist_str;
-playlist_entry playlist_array[256]; //max size in playlist — 256 positions
+playlist_entry playlist_array[MAX_PLAYLIST_ENTRIES]; //defined in playlist.h
 
 plist* get_playlist_handler(void) {
     if (playlist_str) {
@@ -152,11 +152,11 @@ int playlist_next(void) {
     return select_track_from_playlist(pos);    
 }
 
-void musicFinishedCallback() {
+void musicFinishedCallback(void) {
     events = NEED_NEXT_TRACK;
 }
 
-void registerHaltCallback() {
+void registerHaltCallback(void) {
     Mix_HookMusicFinished(musicFinishedCallback);
 }
 
