@@ -57,6 +57,7 @@ void free_dir_content(struct dir_content *dir_con) {
         dir_c->path = realpath(path, NULL);
         if (!dir_c->path) {
             perror("Unable to allocate for dir_c->path");
+            free(dir_c); 
             return -1;
         }
 

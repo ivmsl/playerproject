@@ -162,9 +162,14 @@ int select_track_from_playlist(int pos) {
         gui->currentlyPlaying = NULL;
         
         playlist_entry *cursw = &(playlist_str->playlist[pos]);
+
+        if (!cursw->name || !cursw->folder) {
+            return -1;
+        }
         
         printf("TrackName from second: %s Len: %i Pos: %i\n", cursw->name, playlist_str->len, pos);
         char *fullpath = calloc(strlen(cursw->name) + strlen(cursw->folder) + 2, sizeof(char));
+        
         if (fullpath) {
             memcpy(fullpath, cursw->folder, strlen(cursw->folder));
             strcat(fullpath, "/\0");

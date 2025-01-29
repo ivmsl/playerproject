@@ -21,7 +21,7 @@ typedef struct playlist_info {
     unitControlRender_t repeatButton;
     unitControlRender_t repeatButtonOn;
     struct SDL_Rect guiPos; 
-    uint playlist_len;
+    int playlist_len;
     struct SDL_Texture *atlas;
     char isRepeat;
 } playlist_gui;
