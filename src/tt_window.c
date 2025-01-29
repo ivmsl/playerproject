@@ -57,9 +57,32 @@ void populate_playlist(void) {
         playl_brick[counter].titlePos = (struct SDL_Rect) {5, 5 + counter*50, tempW, tempH};
 
     }
+    TTF_CloseFont(font);
 }
 
-void check_events(void) {
+void clear_playlist_blocks(void) {
+    plist *playlist = get_playlist_handler();
+    if (!playlist) return;
+
+    int count = playlist->len;
+    for (int i = 0; i < count; i++)
+    {
+        if (playl_brick[i].title) SDL_DestroyTexture(playl_brick[i].title);
+        playl_brick[i].title = NULL;
+    }
+    
+}
+
+
+void append_playlist_block(int *index, playlist_entry *entry) {
+    if (index) {
+        TTF_Font *font = TTF_OpenFont(FONTPATH, 18);
+        playl_brick[*index].title = getTextureFromWords(playlistWindow->renderer, font, entry->name);
+        if (!playl_brick[*index].title) return;
+        int tempW, tempH;
+        SDL_QueryTexture(playl_brick[*index].title, NULL, NULL, &tempW, &tempH);
+        playl_brick[*index].titlePos = (struct SDL_Rect) {5, 5 + (*index)*50, tempW, tempH};
+    }
 
 }
 
@@ -91,6 +114,7 @@ wr_couple* createAndReturnPlaylistWindow(void) {
 }
 
 int destroyPlaylistWindow(void) {
+    clear_playlist_blocks();
     if (playlistWindow) {
         //printf("DESTROOOOY \n");
         if (playlistWindow->renderer) SDL_DestroyRenderer(playlistWindow->renderer);

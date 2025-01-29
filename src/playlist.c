@@ -18,8 +18,32 @@ plist* get_playlist_handler(void) {
 }
 
 //!TODO
-int playlist_append(char* dirpath, char* filepath) {
-    return 0;   
+int playlist_append(char* dirpath) {//, char* filepath) {
+    printf("Playlist_append: %s\n", dirpath);
+
+    if (playlist_str) {
+        playlist_entry *playlist_added = &(playlist_array[playlist_str->len]);
+
+        char *file_name = strrchr(dirpath, '/');
+
+        playlist_added->name = calloc(strlen(file_name) + 1, sizeof(char));
+        if (playlist_added->name) memcpy(playlist_added->name, ++file_name, strlen(file_name) + 1);
+        playlist_added->folder = calloc(strlen(dirpath) - strlen(file_name) + 1, sizeof(char));
+        if (playlist_added->folder) {
+            memcpy(playlist_added->folder, dirpath, strlen(dirpath) - strlen(file_name));
+            playlist_added->folder[strlen(dirpath) - strlen(file_name)] = '\0';
+        }
+
+        playlist_str->len++;
+        
+        return 0;   
+    }
+    else {
+        printf("Playlist nie został utworzony");
+        return -1;
+    }
+
+    return 0;
 }
 
 int playlist_from_dir(struct dir_content* dir_c) {

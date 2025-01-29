@@ -29,6 +29,7 @@ void eventLoop(SDL_Window *window, int* quit) {
             case SDL_QUIT:
                 *quit = 1;
                 break;
+           
             case SDL_KEYDOWN:
                 switch (e.key.keysym.sym) {
                     case SDLK_ESCAPE:
@@ -41,6 +42,7 @@ void eventLoop(SDL_Window *window, int* quit) {
                         playPauseAndSwitchButton();       
                 }
                 break;
+           
             case SDL_MOUSEBUTTONDOWN:
                 if (e.button.windowID == get_playlist_window_id()) continue;
                 Sint32 mouseX = e.button.x;
@@ -65,6 +67,7 @@ void eventLoop(SDL_Window *window, int* quit) {
                         setSliderPos(mouseX);
                 }          
                 break;
+          
             case SDL_WINDOWEVENT:
                 {   
                     if (e.window.event == SDL_WINDOWEVENT_CLOSE) {
@@ -78,6 +81,16 @@ void eventLoop(SDL_Window *window, int* quit) {
                     }
                     
                 }
+                break;
+            
+            case SDL_DROPFILE:
+            {
+                printf("File dropped \n");
+                printf("File: %s\n", e.drop.file);
+                playlist_append(e.drop.file); 
+                SDL_free(e.drop.file);
+            }
+            break;
 
             default:
                 break;

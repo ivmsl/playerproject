@@ -23,4 +23,6 @@ extern int playlist_prev(void);
 extern void registerHaltCallback(void);
 char *GetCurrTrackName(void); 
 
+int playlist_append(char* dirpath); 
+
 #endif
