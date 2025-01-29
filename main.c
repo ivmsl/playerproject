@@ -67,7 +67,11 @@ void eventLoop(SDL_Window *window, int* quit) {
                         setSliderPos(mouseX);
                 }          
                 break;
-          
+            case SDL_MOUSEWHEEL: 
+                if (e.wheel.windowID == get_playlist_window_id()) {
+                    changeXCoordScrolling(e.wheel.y);
+                }
+                break;
             case SDL_WINDOWEVENT:
                 {   
                     if (e.window.event == SDL_WINDOWEVENT_CLOSE) {
@@ -91,6 +95,11 @@ void eventLoop(SDL_Window *window, int* quit) {
                 SDL_free(e.drop.file);
             }
             break;
+
+            case SDL_DROPCOMPLETE:
+            {
+                updatePlaylistBlocks();
+            }
 
             default:
                 break;

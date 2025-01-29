@@ -17,7 +17,6 @@ plist* get_playlist_handler(void) {
 
 }
 
-//!TODO
 int playlist_append(char* dirpath) {//, char* filepath) {
     printf("Playlist_append: %s\n", dirpath);
 

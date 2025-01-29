@@ -24,5 +24,6 @@ extern Uint32 get_playlist_window_id(void);
 extern int destroyPlaylistWindow(void);
 extern wr_couple* createAndReturnPlaylistWindow(void);
 extern wr_couple *GetPlaylistRenderer(void);
+void changeXCoordScrolling(Sint32 scroll);
 
 #endif

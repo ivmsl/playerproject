@@ -18,6 +18,8 @@
 
 wr_couple *playlistWindow = NULL; //handler dla okna i renderera
 playlist_block playl_brick[MAX_PLAYLIST_ENTRIES]; //bloki playlistu, MAX_PL_EN defined in playlist.h
+int playlist_len = 0;
+int START_Y_COORD = 0; //dla scrollingu
 
 void *render_playlist_if_present(void) {
     if (!playlistWindow) return NULL;
@@ -25,12 +27,20 @@ void *render_playlist_if_present(void) {
     plist *playlist = get_playlist_handler();
     for (int counter = 0; counter < playlist->len; counter++)
     {
-        playl_brick[counter].renderPos = (struct SDL_Rect) {0, 0 + counter*50, 300, 50};
+        playl_brick[counter].renderPos = (struct SDL_Rect) {0, START_Y_COORD + counter*50, 300, 50};
         SDL_SetRenderDrawColor(playlistWindow->renderer, 183, 45, 45, 100);
         if (playlist->current == counter) SDL_SetRenderDrawColor(playlistWindow->renderer, 65, 105, 255, 100);
         SDL_RenderDrawRect(playlistWindow->renderer, &(playl_brick[counter].renderPos)); 
         if (!playl_brick[counter].title) continue;
+        playl_brick[counter].titlePos.y = START_Y_COORD + 5 + counter*50;  
         SDL_RenderCopy(playlistWindow->renderer, playl_brick[counter].title, NULL, &(playl_brick[counter].titlePos));
+    }
+}
+
+void changeXCoordScrolling(Sint32 scroll) {
+    if (START_Y_COORD + scroll > 0) START_Y_COORD = 0;
+    else {
+        START_Y_COORD += scroll * 3;
     }
 }
 
@@ -57,6 +67,7 @@ void populate_playlist(void) {
         playl_brick[counter].titlePos = (struct SDL_Rect) {5, 5 + counter*50, tempW, tempH};
 
     }
+    playlist_len = playlist->len;
     TTF_CloseFont(font);
 }
 
@@ -74,16 +85,23 @@ void clear_playlist_blocks(void) {
 }
 
 
-void append_playlist_block(int *index, playlist_entry *entry) {
-    if (index) {
-        TTF_Font *font = TTF_OpenFont(FONTPATH, 18);
-        playl_brick[*index].title = getTextureFromWords(playlistWindow->renderer, font, entry->name);
-        if (!playl_brick[*index].title) return;
+void updatePlaylistBlocks(void) {
+    if (!playlistWindow) return;
+    plist *playlist = get_playlist_handler();
+    if (!playlist) return;
+    if (playlist->len > playlist_len) {
+        printf("New songs added to playlist %i %i \n", playlist->len, playlist_len);
+        for (int i = playlist_len; i < playlist->len; i++) {
+            TTF_Font *font = TTF_OpenFont(FONTPATH, 18);
+            printf("Playlist: %s\n", playlist->playlist[i].name);
+            playl_brick[i].title = getTextureFromWords(playlistWindow->renderer, font, playlist->playlist[i].name);
+        if (!playl_brick[i].title) return;
         int tempW, tempH;
-        SDL_QueryTexture(playl_brick[*index].title, NULL, NULL, &tempW, &tempH);
-        playl_brick[*index].titlePos = (struct SDL_Rect) {5, 5 + (*index)*50, tempW, tempH};
+        SDL_QueryTexture(playl_brick[i].title, NULL, NULL, &tempW, &tempH);
+        playl_brick[i].titlePos = (struct SDL_Rect) {5, 5 + i*50, tempW, tempH};
+        }
     }
-
+    playlist_len = playlist->len;
 }
 
 Uint32 get_playlist_window_id(void) {
