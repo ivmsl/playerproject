@@ -13,3 +13,6 @@ Bugs:
 
 Warning:
   Compiled only for MacOS
+
+
+It is a university project for IS2024/25 UŚ.
